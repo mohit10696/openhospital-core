@@ -69,6 +69,7 @@ import org.isf.utils.exception.OHException;
 
 public class ExcelExporter {
 
+	private CharsetEncoder encoder;
 	private Locale currentLocale;
 	private Workbook workbook;
 	private CellStyle doubleStyle;
@@ -79,6 +80,9 @@ public class ExcelExporter {
 	private CreationHelper createHelper;
 
 	public ExcelExporter() {
+		encoder = StandardCharsets.UTF_8.newEncoder();
+		encoder.onMalformedInput(CodingErrorAction.REPORT);
+		encoder.onUnmappableCharacter(CodingErrorAction.REPORT);
 		currentLocale = Locale.getDefault();
 	}
 

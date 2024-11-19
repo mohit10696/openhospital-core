@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = OHServiceException.class)
 @TranslateOHServiceException
-public class ExamIoOperations extends CommonExamIOOperations {
+public class ExamIoOperations {
 
 	private final ExamIoOperationRepository repository;
 
@@ -82,6 +82,14 @@ public class ExamIoOperations extends CommonExamIOOperations {
 			repository.findByOrderByDescriptionAscDescriptionAsc();
 	}
 
+	/**
+	 * Returns the list of {@link ExamType}s
+	 * @return the list of {@link ExamType}s
+	 * @throws OHServiceException
+	 */
+	public List<ExamType> getExamType() throws OHServiceException {
+		return typeRepository.findAllByOrderByDescriptionAsc();
+	}
 
 	/**
 	 * Insert a new {@link Exam} with exam rows.
@@ -181,21 +189,17 @@ public class ExamIoOperations extends CommonExamIOOperations {
 	}
 
 	/**
-	 * This function controls the presence of a record with the same key as in
-	 * the parameter; Returns false if the query finds no record, else returns
-	 * true
-	 * 
+	 * This function controls the presence of a record with the same key as in the parameter; Returns false if the query finds no record, else returns true
 	 * @param exam the {@link Exam}
-	 * @return <code>true</code> if the Exam code has already been used, <code>false</code> otherwise
-	 * @throws OHServiceException 
+	 * @return {@code true} if the Exam code has already been used, {@code false} otherwise
+	 * @throws OHServiceException
 	 */
 	public boolean isKeyPresent(Exam exam) throws OHServiceException {
 		return repository.findById(exam.getCode()).orElse(null) != null;
 	}
 
 	/**
-	 * Sanitize the given {@link String} value. 
-	 * This method is maintained only for backward compatibility.
+	 * Sanitize the given {@link String} value. This method is maintained only for backward compatibility.
 	 * @param value the value to sanitize.
 	 * @return the sanitized value or {@code null} if the passed value is {@code null}.
 	 */
