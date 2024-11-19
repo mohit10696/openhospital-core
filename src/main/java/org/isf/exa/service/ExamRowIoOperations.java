@@ -111,18 +111,7 @@ public class ExamRowIoOperations extends CommonExamIOOperations {
 		return rowRepository.save(examRow);
 	}
 
-	/**
-	 * Delete an {@link ExamRow}
-	 * @param examRow - the {@link ExamRow} to delete
-	 * @return <code>true</code> if the {@link ExamRow} has been deleted, <code>false</code> otherwise
-	 * @throws OHServiceException
-	 */
-	public boolean deleteExamRow(ExamRow examRow) throws OHServiceException {
-		rowRepository.deleteById(examRow.getCode());
-		return true;
-	}
 
-	
 	/**
 	 * This function controls the presence of a record with the same key as in
 	 * the parameter; Returns false if the query finds no record, else returns
@@ -160,16 +149,6 @@ public class ExamRowIoOperations extends CommonExamIOOperations {
 		return rowRepository.existsById(code);
 	}
 
-	/**
-	 * Checks if the code is already in use
-	 *
-	 * @param code - the exam row code
-	 * @return <code>true</code> if the code is already in use, <code>false</code> otherwise
-	 * @throws OHServiceException 
-	 */
-	public boolean isRowPresent(Integer code) throws OHServiceException {
-		return rowRepository.existsById(code);
-	}
 	
 	public List<ExamRow> getExamRowByExamCode(String aExamCode) throws OHServiceException {
 		return rowRepository.findAllByExam_CodeOrderByDescription(aExamCode);

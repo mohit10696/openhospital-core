@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = OHServiceException.class)
 @TranslateOHServiceException
-public class ExamIoOperations {
+public class ExamIoOperations extends CommonExamIOOperations {
 
 	private final ExamIoOperationRepository repository;
 
@@ -82,14 +82,6 @@ public class ExamIoOperations {
 			repository.findByOrderByDescriptionAscDescriptionAsc();
 	}
 
-	/**
-	 * Returns the list of {@link ExamType}s
-	 * @return the list of {@link ExamType}s
-	 * @throws OHServiceException
-	 */
-	public List<ExamType> getExamType() throws OHServiceException {
-		return typeRepository.findAllByOrderByDescriptionAsc();
-	}
 
 	/**
 	 * Insert a new {@link Exam} with exam rows.
@@ -180,15 +172,6 @@ public class ExamIoOperations {
 	}
 
 	/**
-	 * Delete an {@link ExamRow}.
-	 * @param examRow - the {@link ExamRow} to delete
-	 * @throws OHServiceException
-	 */
-	public void deleteExamRow(ExamRow examRow) throws OHServiceException {
-		rowRepository.delete(examRow);
-	}
-
-	/**
 	 * This function controls the presence of a record with the same key as in the parameter; Returns false if the query finds no record, else returns true
 	 * @param exam the {@link Exam}
 	 * @return {@code true} if the Exam code has already been used, {@code false} otherwise
@@ -220,15 +203,6 @@ public class ExamIoOperations {
 		return repository.existsById(code);
 	}
 
-	/**
-	 * Checks if the code is already in use
-	 * @param code - the exam row code
-	 * @return {@code true} if the code is already in use, {@code false} otherwise
-	 * @throws OHServiceException
-	 */
-	public boolean isRowPresent(Integer code) throws OHServiceException {
-		return rowRepository.existsById(code);
-	}
 
 	/**
 	 * Find exam by code

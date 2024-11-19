@@ -67,11 +67,9 @@ public class CommonExamIOOperations {
 	/**
 	 * Delete an {@link ExamRow}.
 	 * @param examRow - the {@link ExamRow} to delete
-	 * @return <code>true</code> if the {@link ExamRow} has been deleted, <code>false</code> otherwise
 	 * @throws OHServiceException
 	 */
-	public boolean deleteExamRow(ExamRow examRow) throws OHServiceException {
-		rowRepository.deleteById(examRow.getCode());
-		return true;
+	public void deleteExamRow(ExamRow examRow) throws OHServiceException {
+		rowRepository.delete(examRow);
 	}
 }
