@@ -22,6 +22,7 @@
 package org.isf.exa.service;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.isf.exa.model.Exam;
 import org.isf.exa.model.ExamRow;
@@ -29,34 +30,26 @@ import org.isf.exatype.model.ExamType;
 import org.isf.exatype.service.ExamTypeIoOperationRepository;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * ------------------------------------------
- * ExamIoOperations - provides the I/O operations for recovering and managing exam records from the database.
- * -----------------------------------------
- * modification history
- * ??/??/2005 - Davide/Theo - first beta version
- * 07/11/2006 - ross - modified to accept, within the description, the character quote (')
- *                     (to do this, just double every quote. replaceall("'","''")
- *                     when record locked all data is saved now, not only descritpion
- * ------------------------------------------
- */
 @Service
-@Transactional(rollbackFor=OHServiceException.class)
+@Transactional(rollbackFor = OHServiceException.class)
 @TranslateOHServiceException
 public class ExamIoOperations extends CommonExamIOOperations {
 
-	@Autowired
-	private ExamIoOperationRepository repository;
+	private final ExamIoOperationRepository repository;
 
-	@Autowired
-	private ExamRowIoOperationRepository rowRepository;
+	private final ExamRowIoOperationRepository rowRepository;
 
-	@Autowired
-	private ExamTypeIoOperationRepository typeRepository;
+	private final ExamTypeIoOperationRepository typeRepository;
+
+	public ExamIoOperations(ExamIoOperationRepository examIoOperationRepository, ExamRowIoOperationRepository examRowIoOperationRepository,
+		ExamTypeIoOperationRepository examTypeIoOperationRepository) {
+		this.repository = examIoOperationRepository;
+		this.rowRepository = examRowIoOperationRepository;
+		this.typeRepository = examTypeIoOperationRepository;
+	}
 
 	/**
 	 * Returns the list of {@link Exam}s
@@ -75,7 +68,7 @@ public class ExamIoOperations extends CommonExamIOOperations {
 	 */
 	public List<Exam> getExamsByDesc(String description) throws OHServiceException {
 		return description != null ? repository.findByDescriptionContainingOrderByExamtypeDescriptionAscDescriptionAsc(description) :
-				repository.findByOrderByDescriptionAscDescriptionAsc();
+			repository.findByOrderByDescriptionAscDescriptionAsc();
 	}
 
 	/**
@@ -86,73 +79,125 @@ public class ExamIoOperations extends CommonExamIOOperations {
 	 */
 	public List<Exam> getExamsByExamTypeDesc(String description) throws OHServiceException {
 		return description != null ? repository.findByExamtype_DescriptionContainingOrderByExamtypeDescriptionAscDescriptionAsc(description) :
-				repository.findByOrderByDescriptionAscDescriptionAsc();
+			repository.findByOrderByDescriptionAscDescriptionAsc();
 	}
 
 
 	/**
-	 * Insert a new {@link Exam} in the DB.
-	 *
+	 * Insert a new {@link Exam} with exam rows.
+	 * @param payload - the {@link Exam} to insert
+	 * @param rows - the {@link List<String>} to associate as exam rows
+	 * @return the newly persisted {@link Exam}.
+	 * @throws OHServiceException
+	 */
+	@Transactional
+	public Exam create(Exam payload, List<String> rows) throws OHServiceException {
+		Exam exam = repository.save(payload);
+		if (exam.getProcedure() == 3) {
+			return exam;
+		}
+		if (rows != null && !rows.isEmpty()) {
+			rowRepository.saveAll(rows.stream().map(description -> new ExamRow(exam, description)).toList());
+		}
+		return exam;
+	}
+
+	/**
+	 * Update an existing {@link Exam} with exam rows.
+	 * @param payload - the {@link Exam} to insert
+	 * @param rows - the {@link List<String>} to associate as exam rows
+	 * @return the newly persisted {@link Exam}.
+	 * @throws OHServiceException
+	 */
+	@Transactional
+	public Exam update(Exam payload, List<String> rows) throws OHServiceException {
+		Exam oldExam = findByCode(payload.getCode());
+		Exam exam = repository.save(payload);
+		List<ExamRow> examRows = rowRepository.findAllByExam_CodeOrderByDescription(exam.getCode());
+		if (exam.getProcedure() == 3 && oldExam.getProcedure() != 3) {
+			rowRepository.deleteAll(examRows);
+		} else {
+			List<ExamRow> rowsToRemove = examRows.stream().filter(examRow -> !rows.contains(examRow.getDescription())).toList();
+			List<ExamRow> rowsToAdd = rows.stream().filter(row -> examRows.stream().noneMatch(examRow -> Objects.equals(row, examRow.getDescription())))
+				.map(description -> new ExamRow(exam, description)).toList();
+
+			if (!rowsToRemove.isEmpty()) {
+				rowRepository.deleteAll(rowsToRemove);
+			}
+			if (!rowsToAdd.isEmpty()) {
+				rowRepository.saveAll(rowsToAdd);
+			}
+		}
+		return exam;
+	}
+
+	/**
+	 * Insert a new {@link Exam}.
 	 * @param exam - the {@link Exam} to insert
-	 * @return <code>true</code> if the {@link Exam} has been inserted, <code>false</code> otherwise
+	 * @return the newly persisted {@link Exam}.
 	 * @throws OHServiceException
 	 */
-	public boolean newExam(Exam exam) throws OHServiceException {
-		return repository.save(exam) != null;
+	public Exam newExam(Exam exam) throws OHServiceException {
+		return repository.save(exam);
 	}
 
 	/**
-	 * Insert a new {@link ExamRow} in the DB.
-	 *
+	 * Insert a new {@link ExamRow}.
 	 * @param examRow - the {@link ExamRow} to insert
-	 * @return <code>true</code> if the {@link ExamRow} has been inserted, <code>false</code> otherwise
+	 * @return the newly persisted {@link ExamRow}.
 	 * @throws OHServiceException
 	 */
-	public boolean newExamRow(ExamRow examRow) throws OHServiceException {
-		return rowRepository.save(examRow) != null;
+	public ExamRow newExamRow(ExamRow examRow) throws OHServiceException {
+		return rowRepository.save(examRow);
 	}
 
 	/**
 	 * Update an already existing {@link Exam}.
 	 * @param exam - the {@link Exam} to update
-	 * @return <code>true</code> if the {@link Exam} has been updated, <code>false</code> otherwise
+	 * @return the updated {@link Exam}.
 	 * @throws OHServiceException
 	 */
 	public Exam updateExam(Exam exam) throws OHServiceException {
-
 		return repository.save(exam);
 	}
 
 	/**
 	 * Delete an {@link Exam}
 	 * @param exam - the {@link Exam} to delete
-	 * @return <code>true</code> if the {@link Exam} has been deleted, <code>false</code> otherwise
 	 * @throws OHServiceException
 	 */
-	public boolean deleteExam(Exam exam) throws OHServiceException {
+	public void deleteExam(Exam exam) throws OHServiceException {
 		rowRepository.deleteByExam_Code(exam.getCode());
 		repository.delete(exam);
-		return true;
+	}
+
+	/**
+	 * Delete an {@link ExamRow}.
+	 * @param examRow - the {@link ExamRow} to delete
+	 * @throws OHServiceException
+	 */
+	public void deleteExamRow(ExamRow examRow) throws OHServiceException {
+		rowRepository.delete(examRow);
 	}
 
 	/**
 	 * This function controls the presence of a record with the same key as in
 	 * the parameter; Returns false if the query finds no record, else returns
 	 * true
-	 *
+	 * 
 	 * @param exam the {@link Exam}
 	 * @return <code>true</code> if the Exam code has already been used, <code>false</code> otherwise
-	 * @throws OHServiceException
+	 * @throws OHServiceException 
 	 */
 	public boolean isKeyPresent(Exam exam) throws OHServiceException {
 		return repository.findById(exam.getCode()).orElse(null) != null;
 	}
 
 	/**
-	 * Sanitize the given {@link String} value.
+	 * Sanitize the given {@link String} value. 
 	 * This method is maintained only for backward compatibility.
 	 * @param value the value to sanitize.
-	 * @return the sanitized value or <code>null</code> if the passed value is <code>null</code>.
+	 * @return the sanitized value or {@code null} if the passed value is {@code null}.
 	 */
 	protected String sanitize(String value) {
 		if (value == null) {
@@ -163,13 +208,31 @@ public class ExamIoOperations extends CommonExamIOOperations {
 
 	/**
 	 * Checks if the code is already in use
-	 *
 	 * @param code - the exam code
-	 * @return <code>true</code> if the code is already in use, <code>false</code> otherwise
+	 * @return {@code true} if the code is already in use, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {
 		return repository.existsById(code);
 	}
 
+	/**
+	 * Checks if the code is already in use
+	 * @param code - the exam row code
+	 * @return {@code true} if the code is already in use, {@code false} otherwise
+	 * @throws OHServiceException
+	 */
+	public boolean isRowPresent(Integer code) throws OHServiceException {
+		return rowRepository.existsById(code);
+	}
+
+	/**
+	 * Find exam by code
+	 * @param code - the code
+	 * @return The exam if found, {@code null} otherwise.
+	 * @throws OHServiceException
+	 */
+	public Exam findByCode(String code) throws OHServiceException {
+		return repository.findById(code).orElse(null);
+	}
 }

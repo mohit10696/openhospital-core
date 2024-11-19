@@ -25,17 +25,22 @@ import java.util.List;
 
 import org.isf.menu.model.UserGroup;
 import org.isf.menu.service.UserGroupIoOperationRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserGroupManager {
 
-	@Autowired
-	private UserGroupIoOperationRepository userGroupIoOperationRepository;
+	private final UserGroupIoOperationRepository userGroupIoOperationRepository;
+
+	public UserGroupManager(UserGroupIoOperationRepository userGroupIoOperationRepository) {
+		this.userGroupIoOperationRepository = userGroupIoOperationRepository;
+	}
 
 	public List<UserGroup> findByIdIn(List<String> userGroupIds) {
 		return this.userGroupIoOperationRepository.findByCodeIn(userGroupIds);
 	}
 
+	public List<UserGroup> findByIdIn(List<String> userGroupIds, boolean deleted) {
+		return this.userGroupIoOperationRepository.findByCodeInAndDeleted(userGroupIds, deleted);
+	}
 }

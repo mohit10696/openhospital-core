@@ -108,23 +108,214 @@ public class ExcelExporter {
 
 	}
 
+	/**
+	 * Writes BOM for Excel UTF-8 automatic handling
+	 *
+	 * @param fileStream - the filestream to use
+	 * @throws IOException
+	 */
+	private void writeBOM(FileOutputStream fileStream) throws IOException {
+		byte[] bom = { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF };
+		fileStream.write(bom);
+	}
+
+	/**
+	 * Export a jTable to CSV file with a semi-column (;) as list separator
+	 *
+	 * @param jtable
+	 * @param file
+	 * @throws IOException
+	 */
+	public void exportTableToCSV(JTable jtable, File file) throws IOException {
+		exportTableToCSV(jtable, file, ";");
+	}
+
+	/**
+	 * Export a jTable to CSV file format
+	 *
+	 * @param jtable
+	 * @param file
+	 * @param separator - the character to use as separator (usually ',' or ';')
+	 * @throws IOException
+	 */
+	private void exportTableToCSV(JTable jtable, File file, String separator) throws IOException {
+		TableModel model = jtable.getModel();
+		FileOutputStream fileStream = new FileOutputStream(file);
+		writeBOM(fileStream);
+
+		try (BufferedWriter outFile = new BufferedWriter(new OutputStreamWriter(fileStream, encoder))) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+
+			int colCount = model.getColumnCount();
+			for (int i = 0; i < colCount; i++) {
+				if (i == colCount - 1) {
+					outFile.write(model.getColumnName(i));
+				} else {
+					outFile.write(model.getColumnName(i) + separator);
+				}
+			}
+			outFile.write("\n");
+
+			int rowCount = model.getRowCount();
+			for (int i = 0; i < rowCount; i++) {
+				for (int j = 0; j < colCount; j++) {
+					String strVal;
+					Object objVal = model.getValueAt(i, j);
+					if (objVal != null) {
+						if (objVal instanceof Integer val) {
+							NumberFormat format = NumberFormat.getInstance(currentLocale);
+							strVal = format.format(val);
+						} else if (objVal instanceof Double val) {
+							NumberFormat format = NumberFormat.getInstance(currentLocale);
+							strVal = format.format(val);
+						} else if (objVal instanceof Timestamp val) {
+							strVal = sdf.format(val);
+						} else {
+							strVal = objVal.toString();
+						}
+					} else {
+						strVal = " ";
+					}
+					if (j == colCount - 1) {
+						outFile.write(strVal);
+					} else {
+						outFile.write(strVal + separator);
+					}
+				}
+				outFile.write("\n");
+			}
+		}
+	}
+
+	/**
+	 * Export a {@link ResultSet} to CSV file with a semi-column (;) as list separator
+	 *
+	 * @param resultSet
+	 * @param exportFile
+	 * @throws IOException
+	 * @throws OHException
+	 */
+	public void exportResultsetToCSV(ResultSet resultSet, File exportFile) throws IOException, OHException {
+		exportResultsetToCSV(resultSet, exportFile, ";");
+	}
+
+	/**
+	 * Export a {@link ResultSet} to CSV file
+	 *
+	 * @param resultSet
+	 * @param exportFile
+	 * @param separator - the character to use as separator (usually ',' or ';')
+	 * @throws IOException
+	 * @throws OHException
+	 */
+	private void exportResultsetToCSV(ResultSet resultSet, File exportFile, String separator) throws IOException, OHException {
+
+		/*
+		 * write BOM for Excel UTF-8 automatic handling
+		 */
+		FileOutputStream fileStream = new FileOutputStream(exportFile);
+		writeBOM(fileStream);
+
+		try (BufferedWriter output = new BufferedWriter(new OutputStreamWriter(fileStream, encoder))) {
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+			NumberFormat numFormat = NumberFormat.getInstance(currentLocale);
+
+			try {
+				ResultSetMetaData rsmd = resultSet.getMetaData();
+
+				int colCount = rsmd.getColumnCount();
+				for (int i = 1; i <= colCount; i++) {
+					if (i == colCount) {
+						output.write(rsmd.getColumnName(i));
+					} else {
+						output.write(rsmd.getColumnName(i) + separator);
+					}
+				}
+				output.write("\n");
+
+				while (resultSet.next()) {
+
+					String strVal;
+					for (int i = 1; i <= colCount; i++) {
+						Object objVal = resultSet.getObject(i);
+						if (objVal != null) {
+							if (objVal instanceof Double val) {
+
+								strVal = numFormat.format(val);
+							} else if (objVal instanceof Timestamp val) {
+
+								strVal = sdf.format(val);
+							} else {
+
+								strVal = objVal.toString();
+							}
+						} else {
+							strVal = " ";
+						}
+						if (i == colCount - 1) {
+							output.write(strVal);
+						} else {
+							output.write(strVal + separator);
+						}
+
+					}
+					output.write("\n");
+
+				}
+			} catch (SQLException e) {
+				throw new OHException(MessageBundle.getMessage("angal.sql.problemsoccurredwiththesqlinstruction.msg"), e);
+			}
+		}
+	}
+
+	/**
+	 * Export a {@link Collection} to CSV using Apache POI library
+	 *
+	 * @param data
+	 * @param exportFile
+	 * @throws IOException
+	 * @throws OHException
+	 */
+	public void exportDataToCSV(Collection data, File exportFile) throws IOException, OHException {
+
+		try (FileWriter outFile = new FileWriter(exportFile)) {
+			boolean header = false;
+			for (Object map : data) {
+				Map thisMap = ((Map) map);
+				if (!header) {
+					Set columns = thisMap.keySet();
+					for (Object column : columns) {
+						outFile.write(column.toString() + ';');
+					}
+					outFile.write("\n");
+					header = true;
+				}
+
+				String strVal;
+				Collection values = thisMap.values();
+				for (Object value : values) {
+					strVal = convertValue(value);
+					outFile.write(strVal + ';');
+				}
+				outFile.write("\n");
+			}
+		}
+	}
+
 	private String convertValue(Object value) {
 		String strVal;
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 		if (value != null) {
-			if (value instanceof BigDecimal) {
+			if (value instanceof BigDecimal val) {
 
-				BigDecimal val = (BigDecimal) value;
 				NumberFormat format = NumberFormat.getInstance(currentLocale);
 				strVal = format.format(val);
-			} else if (value instanceof Double) {
+			} else if (value instanceof Double val) {
 
-				Double val = (Double) value;
 				NumberFormat format = NumberFormat.getInstance(currentLocale);
 				strVal = format.format(val);
-			} else if (value instanceof Timestamp) {
+			} else if (value instanceof Timestamp val) {
 
-				Timestamp val = (Timestamp) value;
 				strVal = sdf.format(val);
 			} else {
 
@@ -141,13 +332,20 @@ public class ExcelExporter {
 	 *
 	 * @param jtable
 	 * @param file
-	 * @param columnCount (optional) if not specified or -1 then get the column count from the table model; if specified use that number for the column count
 	 * @throws IOException
 	 */
 	public void exportTableToExcel(JTable jtable, File file) throws IOException {
 		exportTableToExcel(jtable, file, -1);
 	}
 
+	/**
+	 * Export a {@link JTable} to Excel using Apache POI library
+	 *
+	 * @param jtable
+	 * @param file
+	 * @param columnCount if -1 then get the column count from the table model; if specified use that number for the column count
+	 * @throws IOException
+	 */
 	public void exportTableToExcel(JTable jtable, File file, int columnCount) throws IOException {
 		TableModel model = jtable.getModel();
 		FileOutputStream fileStream = new FileOutputStream(file);
@@ -291,29 +489,24 @@ public class ExcelExporter {
 	private void setValueForExcel(Cell cell, Object value) {
 
 		if (value != null) {
-			if (value instanceof Integer) {
-				Integer val = (Integer) value;
+			if (value instanceof Integer val) {
 				cell.setCellValue(val);
-			} else if (value instanceof Double) {
-				Double val = (Double) value;
+			} else if (value instanceof Double val) {
 				cell.setCellType(CellType.NUMERIC);
 				cell.setCellStyle(doubleStyle);
 				cell.setCellValue(val);
-			} else if (value instanceof Timestamp) {
-				Timestamp val = (Timestamp) value;
+			} else if (value instanceof Timestamp val) {
 				cell.setCellStyle(dateTimeStyle);
 				cell.setCellValue(val);
 			} else if (value instanceof Date) {
 				Timestamp val = new Timestamp(((Date) value).getTime());
 				cell.setCellStyle(dateStyle);
 				cell.setCellValue(val);
-			} else if (value instanceof BigDecimal) {
-				BigDecimal val = (BigDecimal) value;
+			} else if (value instanceof BigDecimal val) {
 				cell.setCellType(CellType.NUMERIC);
 				cell.setCellStyle(bigDecimalStyle);
 				cell.setCellValue(val.doubleValue());
-			} else if (value instanceof Long) {
-				Long val = (Long) value;
+			} else if (value instanceof Long val) {
 				cell.setCellValue(val);
 			} else {
 				RichTextString val = createHelper.createRichTextString(value.toString());
@@ -327,13 +520,20 @@ public class ExcelExporter {
 	 *
 	 * @param jtable
 	 * @param file
-	 * @param columnCount (optional) if not specified or -1 then get the column count from the table model; if specified use that number for the column count
 	 * @throws IOException
 	 */
 	public void exportTableToExcelOLD(JTable jtable, File file) throws IOException {
 		exportTableToExcelOLD(jtable, file, -1);
 	}
 
+	/**
+	 * Export a {@link JTable} to Excel 97-2003 using Apache POI library
+	 *
+	 * @param jtable
+	 * @param file
+	 * @param columnCount if -1 then get the column count from the table model; othereise use the specfied number for the column count
+	 * @throws IOException
+	 */
 	public void exportTableToExcelOLD(JTable jtable, File file, int columnCount) throws IOException {
 		TableModel model = jtable.getModel();
 		FileOutputStream fileStream = new FileOutputStream(file);
@@ -470,29 +670,24 @@ public class ExcelExporter {
 	private void setValueForExcelOLD(HSSFCell cell, Object value) {
 
 		if (value != null) {
-			if (value instanceof Integer) {
-				Integer val = (Integer) value;
+			if (value instanceof Integer val) {
 				cell.setCellValue(val);
-			} else if (value instanceof Double) {
-				Double val = (Double) value;
+			} else if (value instanceof Double val) {
 				cell.setCellType(CellType.NUMERIC);
 				cell.setCellStyle(doubleStyle);
 				cell.setCellValue(val);
-			} else if (value instanceof Timestamp) {
-				Timestamp val = (Timestamp) value;
+			} else if (value instanceof Timestamp val) {
 				cell.setCellStyle(dateTimeStyle);
 				cell.setCellValue(val);
 			} else if (value instanceof Date) {
 				Timestamp val = new Timestamp(((Date) value).getTime());
 				cell.setCellStyle(dateStyle);
 				cell.setCellValue(val);
-			} else if (value instanceof BigDecimal) {
-				BigDecimal val = (BigDecimal) value;
+			} else if (value instanceof BigDecimal val) {
 				cell.setCellType(CellType.NUMERIC);
 				cell.setCellStyle(bigDecimalStyle);
 				cell.setCellValue(val.doubleValue());
-			} else if (value instanceof Long) {
-				Long val = (Long) value;
+			} else if (value instanceof Long val) {
 				cell.setCellValue(val);
 			} else {
 				HSSFRichTextString val = new HSSFRichTextString(value.toString());

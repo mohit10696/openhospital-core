@@ -45,8 +45,6 @@ import org.isf.utils.time.TimeTools;
 import org.isf.visits.model.Visit;
 import org.isf.visits.service.VisitsIoOperations;
 import org.isf.ward.model.Ward;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,18 +54,20 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 public class VisitManager {
 
-	@Autowired
 	private VisitsIoOperations ioOperations;
 
-	@Autowired
 	private SmsOperations smsOp;
 
-	@Autowired
 	private OpdIoOperationRepository opdRepository;
 
-	@Autowired
-	private ApplicationContext applicationContext;
+	private PatientBrowserManager patientBrowserManager;
 
+	public VisitManager(VisitsIoOperations visitsIoOperations, SmsOperations smsOperations, OpdIoOperationRepository opdOperationIoRepository, PatientBrowserManager patientBrowserManager) {
+		this.ioOperations = visitsIoOperations;
+		this.smsOp = smsOperations;
+		this.opdRepository = opdOperationIoRepository;
+		this.patientBrowserManager = patientBrowserManager;
+	}
 	/**
 	 * Verify if the visit is valid for CRUD, if not throws an {@link OHServiceException} listing the validation errors.
 	 *
@@ -163,7 +163,7 @@ public class VisitManager {
 	/**
 	 * Returns the list of all {@link Visit}s related to a patID
 	 *
-	 * @param patID - the {@link Patient} ID. If <code>0</code> return the list of all {@link Visit}s
+	 * @param patID - the {@link Patient} ID. If {@code 0} return the list of all {@link Visit}s
 	 * @return the list of {@link Visit}s
 	 * @throws OHServiceException
 	 */
@@ -174,7 +174,7 @@ public class VisitManager {
 	/**
 	 * Returns the list of all {@link Visit}s related to a patID in OPD (Ward is {@code null}).
 	 *
-	 * @param patID - the {@link Patient} ID. If <code>0</code> return the list of all {@link Visit}s
+	 * @param patID - the {@link Patient} ID. If {@code 0} return the list of all {@link Visit}s
 	 * @return the list of {@link Visit}s
 	 * @throws OHServiceException
 	 */
@@ -243,7 +243,7 @@ public class VisitManager {
 	 * to avoid visits overlapping and patients ubiquity
 	 *
 	 * @param visits - the list of {@link Visit}s related to patID.
-	 * @return <code>true</code> if the list has been replaced, <code>false</code> otherwise
+	 * @return {@code true} if the list has been replaced, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	@Transactional(rollbackFor = OHServiceException.class)
@@ -259,14 +259,13 @@ public class VisitManager {
 	 *
 	 * @param visits - the list of {@link Visit}s related to patID.
 	 * @param removedVisits - the list of {@link Visit}s eventually removed
-	 * @return <code>true</code> if the list has been replaced, <code>false</code> otherwise
+	 * @return {@code true} if the list has been replaced, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	@Transactional(rollbackFor = OHServiceException.class)
 	@TranslateOHServiceException
 	public boolean newVisits(List<Visit> visits, List<Visit> removedVisits) throws OHServiceException {
 		if (!visits.isEmpty()) {
-			PatientBrowserManager patMan = this.applicationContext.getBean(PatientBrowserManager.class);
 			int patID = visits.get(0).getPatient().getCode();
 			for (Visit visit : removedVisits) {
 				deleteVisit(visit);
@@ -285,7 +284,7 @@ public class VisitManager {
 				if (visit.isSms()) {
 					LocalDateTime date = visit.getDate().minusDays(1);
 					if (visit.getDate().isAfter(TimeTools.getDateToday24())) {
-						Patient pat = patMan.getPatientById(visit.getPatient().getCode());
+						Patient pat = patientBrowserManager.getPatientById(visit.getPatient().getCode());
 						Sms sms = new Sms();
 						sms.setSmsDateSched(date);
 						sms.setSmsNumber(pat.getTelephone());
@@ -305,7 +304,7 @@ public class VisitManager {
 	 * Deletes all {@link Visit}s related to a patID
 	 *
 	 * @param patID - the {@link Patient} ID
-	 * @return <code>true</code> if the list has been deleted, <code>false</code> otherwise
+	 * @return {@code true} if the list has been deleted, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	@Transactional(rollbackFor = OHServiceException.class)
@@ -321,7 +320,7 @@ public class VisitManager {
 
 	/**
 	 * Builds the {@link Sms} text for the specified {@link Visit}
-	 * If the length exceeds {@code SmsManager.MAX_LENGHT} the message will be truncated to
+	 * If the length exceeds {@code SmsManager.MAX_LENGTH} the message will be truncated to
 	 * the maximum length.
 	 * (example:
 	 * "REMINDER: dd/MM/yy - HH:mm:ss - {@link Visit#getNote()}")
@@ -337,8 +336,8 @@ public class VisitManager {
 		if (note != null && !note.isEmpty()) {
 			sb.append(" - ").append(note);
 		}
-		if (sb.toString().length() > SmsManager.MAX_LENGHT) {
-			return sb.substring(0, SmsManager.MAX_LENGHT);
+		if (sb.toString().length() > SmsManager.MAX_LENGTH) {
+			return sb.substring(0, SmsManager.MAX_LENGTH);
 		}
 		return sb.toString();
 	}

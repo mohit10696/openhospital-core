@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -37,5 +37,4 @@ public interface MalnutritionIoOperationRepository extends JpaRepository<Malnutr
 
 	@Query(value = "SELECT m FROM Malnutrition m WHERE m.admission.id = :id ORDER BY m.dateSupp")
 	List<Malnutrition> findAllWhereAdmissionByOrderDateDesc(@Param("id") int admissionID);
-
 }

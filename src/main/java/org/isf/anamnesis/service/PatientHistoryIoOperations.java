@@ -24,25 +24,25 @@ package org.isf.anamnesis.service;
 import org.isf.anamnesis.model.PatientHistory;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 @Service
 @Transactional(rollbackFor = OHServiceException.class)
 @TranslateOHServiceException
 public class PatientHistoryIoOperations {
 
-	@Autowired
 	private PatientHistoryIoOperationRepository repository;
 
-	public PatientHistory getByPatientId(int patId) {
-		return this.repository.findByPatientId(patId);
-
+	public PatientHistoryIoOperations(PatientHistoryIoOperationRepository patientHistoryIoOperationRepository) {
+		this.repository = patientHistoryIoOperationRepository;
 	}
 
-	public void saveOrUpdate(PatientHistory patHis) {
-		this.repository.save(patHis);
+	public PatientHistory getByPatientId(int patId) {
+		return repository.findByPatientId(patId);
+	}
+
+	public PatientHistory saveOrUpdate(PatientHistory patHis) {
+		return repository.save(patHis);
 	}
 }

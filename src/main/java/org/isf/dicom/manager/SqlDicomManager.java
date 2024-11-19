@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -24,7 +24,6 @@ package org.isf.dicom.manager;
 import org.isf.dicom.model.FileDicom;
 import org.isf.dicom.service.DicomIoOperations;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,14 +35,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class SqlDicomManager implements DicomManagerInterface {
 
-	@Autowired
 	private DicomIoOperations ioOperations;
 
-	public SqlDicomManager() {
+	public SqlDicomManager(DicomIoOperations dicomIoOperations) {
+		this.ioOperations = dicomIoOperations;
 	}
 
 	/**
-	 * Load a list of id file for series
+	 * Load a list of id file for a series.
 	 *
 	 * @param patientID, the patient id
 	 * @param seriesNumber, the series number
@@ -51,8 +50,8 @@ public class SqlDicomManager implements DicomManagerInterface {
 	 * @throws OHServiceException
 	 */
 	@Override
-	public Long[] getSerieDetail(int patientID, String seriesNumber) throws OHServiceException {
-		return ioOperations.getSerieDetail(patientID, seriesNumber);
+	public Long[] getSeriesDetail(int patientID, String seriesNumber) throws OHServiceException {
+		return ioOperations.getSeriesDetail(patientID, seriesNumber);
 	}
 
 	/**
@@ -60,12 +59,11 @@ public class SqlDicomManager implements DicomManagerInterface {
 	 *
 	 * @param patientID, the id of patient
 	 * @param seriesNumber, the series number to delete
-	 * @return true if success
 	 * @throws OHServiceException
 	 */
 	@Override
-	public boolean deleteSerie(int patientID, String seriesNumber) throws OHServiceException {
-		return ioOperations.deleteSerie(patientID, seriesNumber);
+	public void deleteSeries(int patientID, String seriesNumber) throws OHServiceException {
+		ioOperations.deleteSeries(patientID, seriesNumber);
 	}
 
 	/**

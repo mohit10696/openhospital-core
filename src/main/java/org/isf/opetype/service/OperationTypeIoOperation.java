@@ -26,7 +26,6 @@ import java.util.List;
 import org.isf.opetype.model.OperationType;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,13 +34,16 @@ import org.springframework.transaction.annotation.Transactional;
 @TranslateOHServiceException
 public class OperationTypeIoOperation {
 
-	@Autowired
 	private OperationTypeIoOperationRepository repository;
-	
+
+	public OperationTypeIoOperation(OperationTypeIoOperationRepository operationTypeIoOperationRepository) {
+		this.repository = operationTypeIoOperationRepository;
+	}
+
 	/**
 	 * Return the list of {@link OperationType}s
 	 * 
-	 * @return the list of {@link OperationType}s. It could be <code>empty</code> or <code>null</code>.
+	 * @return the list of {@link OperationType}s. It could be {@code empty} or {@code null}.
 	 * @throws OHServiceException 
 	 */
 	public List<OperationType> getOperationType() throws OHServiceException {
@@ -52,7 +54,7 @@ public class OperationTypeIoOperation {
 	 * Insert an {@link OperationType} in the DB
 	 * 
 	 * @param operationType - the {@link OperationType} to insert
-	 * @return <code>true</code> if the {@link OperationType} has been inserted, <code>false</code> otherwise.
+	 * @return {@code true} if the {@link OperationType} has been inserted, {@code false} otherwise.
 	 * @throws OHServiceException 
 	 */
 	public OperationType newOperationType(OperationType operationType) throws OHServiceException {
@@ -63,7 +65,7 @@ public class OperationTypeIoOperation {
 	 * Update an {@link OperationType}
 	 * 
 	 * @param operationType - the {@link OperationType} to update
-	 * @return <code>true</code> if the {@link OperationType} has been updated, <code>false</code> otherwise.
+	 * @return {@code true} if the {@link OperationType} has been updated, {@code false} otherwise.
 	 * @throws OHServiceException 
 	 */
 	public OperationType updateOperationType(OperationType operationType) throws OHServiceException {
@@ -71,21 +73,20 @@ public class OperationTypeIoOperation {
 	}
 	
 	/**
-	 * Delete an {@link OperationType}
+	 * Delete an {@link OperationType} object. If the object does not exist it is silently ignored.  If the
+	 * object is null a {@link OHServiceException} is thrown.
 	 * 
 	 * @param operationType - the {@link OperationType} to delete
-	 * @return <code>true</code> if the {@link OperationType} has been delete, <code>false</code> otherwise.
-	 * @throws OHServiceException 
+	 * @throws OHServiceException
 	 */
-	public boolean deleteOperationType(OperationType operationType) throws OHServiceException {
+	public void deleteOperationType(OperationType operationType) throws OHServiceException {
 		repository.delete(operationType);
-		return true;
 	}
 	
 	/**
 	 * Checks if an {@link OperationType} code has already been used
 	 * @param code - the code
-	 * @return <code>true</code> if the code is already in use, <code>false</code> otherwise.
+	 * @return {@code true} if the code is already in use, {@code false} otherwise.
 	 * @throws OHServiceException 
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {

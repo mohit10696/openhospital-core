@@ -31,7 +31,6 @@ import org.isf.utils.exception.OHDataIntegrityViolationException;
 import org.isf.utils.exception.OHDataValidationException;
 import org.isf.utils.exception.OHServiceException;
 import org.isf.utils.exception.model.OHExceptionMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -40,14 +39,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class MedicalTypeBrowserManager {
 
-	@Autowired
 	private MedicalTypeIoOperation ioOperations;
 
+	public MedicalTypeBrowserManager(MedicalTypeIoOperation medicalTypeIoOperation) {
+		this.ioOperations = medicalTypeIoOperation;
+	}
+
 	/**
-	 * Verify if the object is valid for CRUD and return a list of errors, if any
+	 * Verify if the object is valid for CRUD and return a list of errors, if any.
 	 *
 	 * @param medicalType
-	 * @param insert <code>true</code> or updated <code>false</code>
+	 * @param insert {@code true} or updated {@code false}
 	 * @throws OHServiceException
 	 */
 	protected void validateMedicalType(MedicalType medicalType, boolean insert) throws OHServiceException {
@@ -72,9 +74,9 @@ public class MedicalTypeBrowserManager {
 	}
 
 	/**
-	 * Retrieves all the medical types.
+	 * Retrieves all the {@link MedicalType}s.
 	 *
-	 * @return all the medical types.
+	 * @return a list of all the {@link MedicalType}s.
 	 * @throws OHServiceException
 	 */
 	public List<MedicalType> getMedicalType() throws OHServiceException {
@@ -82,10 +84,10 @@ public class MedicalTypeBrowserManager {
 	}
 
 	/**
-	 * Saves the specified medical type.
+	 * Saves the specified {@link MedicalType}.
 	 *
 	 * @param medicalType the medical type to save.
-	 * @return <code>true</code> if the medical type has been saved, <code>false</code> otherwise.
+	 * @return the newly saved {@link MedicalType} object.
 	 * @throws OHServiceException
 	 */
 	public MedicalType newMedicalType(MedicalType medicalType) throws OHServiceException {
@@ -94,10 +96,10 @@ public class MedicalTypeBrowserManager {
 	}
 
 	/**
-	 * Updates the specified medical type.
+	 * Updates the specified {@link MedicalType}.
 	 *
 	 * @param medicalType the medical type to update.
-	 * @return <code>true</code> if the medical type has been updated, <code>false</code> otherwise.
+	 * @return the updated {@link MedicalType} object.
 	 * @throws OHServiceException
 	 */
 	public MedicalType updateMedicalType(MedicalType medicalType) throws OHServiceException {
@@ -106,10 +108,10 @@ public class MedicalTypeBrowserManager {
 	}
 
 	/**
-	 * Checks if the specified medical type code is already used.
+	 * Checks if the specified {@link MedicalType} code is already used.
 	 *
 	 * @param code the code to check.
-	 * @return <code>true</code> if the code is used, <code>false</code> otherwise.
+	 * @return {@code true} if the code is used, {@code false} otherwise.
 	 * @throws OHServiceException
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {
@@ -117,14 +119,12 @@ public class MedicalTypeBrowserManager {
 	}
 
 	/**
-	 * Deletes the specified medical type.
-	 * In case of error a message error is shown and a <code>false</code> value is returned.
+	 * Deletes the specified {@link MedicalType} object.
 	 *
 	 * @param medicalType the medical type to delete.
-	 * @return <code>true</code> if the medical type has been deleted, <code>false</code> otherwise.
 	 * @throws OHServiceException
 	 */
-	public boolean deleteMedicalType(MedicalType medicalType) throws OHServiceException {
-		return ioOperations.deleteMedicalType(medicalType);
+	public void deleteMedicalType(MedicalType medicalType) throws OHServiceException {
+		ioOperations.deleteMedicalType(medicalType);
 	}
 }

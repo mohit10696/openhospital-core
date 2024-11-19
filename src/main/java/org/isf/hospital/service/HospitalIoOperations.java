@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -26,7 +26,6 @@ import java.util.List;
 import org.isf.hospital.model.Hospital;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,13 +41,16 @@ import org.springframework.transaction.annotation.Transactional;
 @TranslateOHServiceException
 public class HospitalIoOperations {
 
-	@Autowired
 	private HospitalIoOperationRepository repository;
-	
+
+	public HospitalIoOperations(HospitalIoOperationRepository hospitalIoOperationRepository) {
+		this.repository = hospitalIoOperationRepository;
+	}
+
 	/**
-	 * Reads from database hospital information
+	 * Reads from database {@link Hospital} information.
 	 * 
-	 * @return {@link Hospital} object
+	 * @return the {@link Hospital} object.
 	 * @throws OHServiceException 
 	 */
 	public Hospital getHospital() throws OHServiceException {
@@ -57,8 +59,8 @@ public class HospitalIoOperations {
 	}
 	
 	/**
-	 * Reads from database currency cod
-	 * @return currency cod
+	 * Reads from the database the currency code.
+	 * @return the currency code
 	 * @throws OHServiceException
 	 */
 	public String getHospitalCurrencyCod() throws OHServiceException {
@@ -67,9 +69,9 @@ public class HospitalIoOperations {
 	}
 	
 	/**
-	 * Updates hospital information
+	 * Updates the {@link Hospital} information.
 	 * 
-	 * @return <code>true</code> if the hospital informations have been updated, <code>false</code> otherwise
+	 * @return the updated {@link Hospital} object.
 	 * @throws OHServiceException
 	 */
 	public Hospital updateHospital(Hospital hospital) throws OHServiceException {
@@ -80,7 +82,7 @@ public class HospitalIoOperations {
 	 * Sanitize the given {@link String} value. 
 	 * This method is maintained only for backward compatibility.
 	 * @param value the value to sanitize.
-	 * @return the sanitized value or <code>null</code> if the passed value is <code>null</code>.
+	 * @return the sanitized value or {@code null} if the passed value is {@code null}.
 	 */
 	protected String sanitize(String value) {
 		if (value == null) {

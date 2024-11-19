@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -26,7 +26,6 @@ import java.util.List;
 import org.isf.admtype.model.AdmissionType;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,12 +35,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor=OHServiceException.class)
 @TranslateOHServiceException
-public class AdmissionTypeIoOperation 
-{
+public class AdmissionTypeIoOperation {
 
-	@Autowired
 	private AdmissionTypeIoOperationRepository repository;
-	
+
+	public AdmissionTypeIoOperation(AdmissionTypeIoOperationRepository admissionTypeIoOperationRepository) {
+		this.repository = admissionTypeIoOperationRepository;
+	}
+
 	/**
 	 * Returns all the available {@link AdmissionType}s.
 	 * @return a list of admission types.
@@ -54,38 +55,36 @@ public class AdmissionTypeIoOperation
 	/**
 	 * Updates the specified {@link AdmissionType}.
 	 * @param admissionType the admission type to update.
-	 * @return <code>true</code> if the admission type has been updated, <code>false</code> otherwise.
+	 * @return the updated admissionType object that is persisted.
 	 * @throws OHServiceException if an error occurs during the update.
 	 */
-	public boolean updateAdmissionType(AdmissionType admissionType) throws OHServiceException {
-		return repository.save(admissionType) != null;
+	public AdmissionType updateAdmissionType(AdmissionType admissionType) throws OHServiceException {
+		return repository.save(admissionType);
 	}
 
 	/**
 	 * Stores a new {@link AdmissionType}.
 	 * @param admissionType the admission type to store.
-	 * @return <code>true</code> if the admission type has been stored, <code>false</code> otherwise.
+	 * @return the updated admissionType object that is persisted.
 	 * @throws OHServiceException if an error occurs during the storing operation.
 	 */
-	public boolean newAdmissionType(AdmissionType admissionType) throws OHServiceException {
-		return repository.save(admissionType) != null;
+	public AdmissionType newAdmissionType(AdmissionType admissionType) throws OHServiceException {
+		return repository.save(admissionType);
 	}
 
 	/**
 	 * Deletes the specified {@link AdmissionType}.
 	 * @param admissionType the admission type to delete.
-	 * @return <code>true</code> if the admission type has been deleted, <code>false</code> otherwise.
 	 * @throws OHServiceException if an error occurs during the delete operation.
 	 */
-	public boolean deleteAdmissionType(AdmissionType admissionType) throws OHServiceException {
+	public void deleteAdmissionType(AdmissionType admissionType) throws OHServiceException {
 		repository.delete(admissionType);
-		return true;
 	}
 
 	/**
 	 * Checks if the specified Code is already used by others {@link AdmissionType}s.
 	 * @param code the admission type code to check.
-	 * @return <code>true</code> if the code is already used, <code>false</code> otherwise.
+	 * @return {@code true} if the code is already used, {@code false} otherwise.
 	 * @throws OHServiceException if an error occurs during the check.
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {

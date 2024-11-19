@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -69,7 +69,7 @@ public class TextbeltSmsResponse implements Serializable {
 
 	@Override
 	public String toString() {
-		return "TextbeltSmsResponse [success=" + success + ", quotaRemaining=" + quotaRemaining + ", textId=" + textId + ", error=" + error + "]";
+		return "TextbeltSmsResponse [success=" + success + ", quotaRemaining=" + quotaRemaining + ", textId=" + textId + ", error=" + error + ']';
 	}
 
 }

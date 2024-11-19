@@ -30,14 +30,16 @@ import org.isf.generaldata.MessageBundle;
 import org.isf.utils.exception.OHDataValidationException;
 import org.isf.utils.exception.OHServiceException;
 import org.isf.utils.exception.model.OHExceptionMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ExamRowBrowsingManager {
 
-	@Autowired
 	private ExamRowIoOperations ioOperations;
+
+	public ExamRowBrowsingManager(ExamRowIoOperations examRowIoOperations) {
+		this.ioOperations = examRowIoOperations;
+	}
 
 	/**
 	 * Verify if the object is valid for CRUD and return a list of errors, if any
@@ -59,7 +61,7 @@ public class ExamRowBrowsingManager {
 	/**
 	 * Returns the list of {@link ExamRow}s
 	 *
-	 * @return the list of {@link ExamRow}s. It could be <code>null</code>
+	 * @return the list of {@link ExamRow}s. It could be {@code null}
 	 * @throws OHServiceException
 	 */
 	public List<ExamRow> getExamRow() throws OHServiceException {
@@ -70,7 +72,7 @@ public class ExamRowBrowsingManager {
 	 * Returns a list of {@link ExamRow}s that matches passed exam code
 	 *
 	 * @param aExamCode - the exam code
-	 * @return the list of {@link ExamRow}s. It could be <code>null</code>
+	 * @return the list of {@link ExamRow}s. It could be {@code null}
 	 * @throws OHServiceException
 	 */
 	public List<ExamRow> getExamRow(int aExamCode) throws OHServiceException {
@@ -82,7 +84,7 @@ public class ExamRowBrowsingManager {
 	 *
 	 * @param aExamRowCode - the exam code
 	 * @param aDescription - the exam description
-	 * @return the list of {@link ExamRow}s. It could be <code>null</code>
+	 * @return the list of {@link ExamRow}s. It could be {@code null}
 	 * @throws OHServiceException
 	 */
 	public List<ExamRow> getExamRow(int aExamRowCode, String aDescription) throws OHServiceException {
@@ -93,7 +95,7 @@ public class ExamRowBrowsingManager {
 	 * Insert a new {@link ExamRow} in the DB.
 	 *
 	 * @param examRow - the {@link ExamRow} to insert
-	 * @return <code>true</code> if the {@link ExamRow} has been inserted, <code>false</code> otherwise
+	 * @return {@code true} if the {@link ExamRow} has been inserted, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	public ExamRow newExamRow(ExamRow examRow) throws OHServiceException {
@@ -105,18 +107,17 @@ public class ExamRowBrowsingManager {
 	 * Delete an {@link ExamRow}.
 	 *
 	 * @param examRow - the {@link ExamRow} to delete
-	 * @return <code>true</code> if the {@link ExamRow} has been deleted, <code>false</code> otherwise
 	 * @throws OHServiceException
 	 */
-	public boolean deleteExamRow(ExamRow examRow) throws OHServiceException {
-		return ioOperations.deleteExamRow(examRow);
+	public void deleteExamRow(ExamRow examRow) throws OHServiceException {
+		ioOperations.deleteExamRow(examRow);
 	}
 
 	/**
 	 * Returns a list of {@link ExamRow}s that matches passed exam code
 	 *
 	 * @param aExamCode - the exam code
-	 * @return the list of {@link ExamRow}s. It could be <code>null</code>
+	 * @return the list of {@link ExamRow}s. It could be {@code null}
 	 * @throws OHServiceException
 	 */
 	public List<ExamRow> getExamRowByExamCode(String aExamCode) throws OHServiceException {

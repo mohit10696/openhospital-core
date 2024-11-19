@@ -25,49 +25,43 @@ import java.util.List;
 
 import org.isf.permissions.model.Permission;
 import org.isf.permissions.service.PermissionIoOperations;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.isf.utils.exception.OHServiceException;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PermissionManager {
 
-	@Autowired
-	private PermissionIoOperations operations;
+	private final PermissionIoOperations operations;
 
-	public List<Permission> retrivePermisionsByGroupCode(String userGropupCode) {
-		return this.operations.retrivePermisionsByGroupCode(userGropupCode);
+	public PermissionManager(PermissionIoOperations permissionIoOperations) {
+		this.operations = permissionIoOperations;
 	}
 
-	public List<Permission> retrievePermissionsByUsername(String currentUserName) {
-		return this.operations.retrievePermissionsByCurrentLoggedInUser(currentUserName);
+	public List<Permission> retrievePermissionsByGroupCode(String userGroupCode) throws OHServiceException {
+		return operations.retrivePermisionsByGroupCode(userGroupCode);
 	}
 
-	public Permission retrievePermissionById(Integer id) {
-		return this.operations.retrievePermissionById(id);
+	public List<Permission> retrievePermissionsByUsername(String currentUserName) throws OHServiceException {
+		return operations.retrievePermissionsByCurrentLoggedInUser(currentUserName);
 	}
 
-	public Permission retrievePermissionByName(String name) {
-		return this.operations.retrievePermissionByName(name);
+	public Permission retrievePermissionById(Integer id) throws OHServiceException {
+		return operations.retrievePermissionById(id);
 	}
 
-	public Permission insertPermission(Permission permission) {
-		return this.operations.insertPermission(permission);
+	public Permission retrievePermissionByName(String name) throws OHServiceException {
+		return operations.retrievePermissionByName(name);
 	}
 
-	public Permission updatePermission(Permission model) {
-		return this.operations.updatePermission(model);
+	public List<Permission> retrieveAllPermissions() throws OHServiceException {
+		return operations.retrieveAllPermissions();
 	}
 
-	public Boolean deletePermission(Integer id) {
-		return this.operations.deletePermission(id);
+	public boolean exists(int id) throws OHServiceException {
+		return operations.exists(id);
 	}
 
-	public List<Permission> retrieveAllPermissions() {
-		return this.operations.retrieveAllPermissions();
+	public Permission save(Permission permission) {
+		return operations.save(permission);
 	}
-
-	public boolean exists(int id) {
-		return this.operations.exists(id);
-	}
-
 }

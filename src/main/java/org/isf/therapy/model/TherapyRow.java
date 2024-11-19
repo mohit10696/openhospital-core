@@ -23,18 +23,18 @@ package org.isf.therapy.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.medicals.model.Medical;
 import org.isf.patient.model.Patient;
@@ -42,27 +42,18 @@ import org.isf.utils.db.Auditable;
 import org.isf.utils.time.TimeTools;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * TherapyRow : Bean to collect data from DB table THERAPIES
- * -----------------------------------------
- * modification history
- * ? - Mwithi - first version
- * 1/08/2016 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_THERAPIES")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "THR_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "THR_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "THR_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "THR_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "THR_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "THR_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "THR_LAST_MODIFIED_DATE"))
 public class TherapyRow extends Auditable<String> {
 
 	@Id 
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="THR_ID")	
 	private int therapyID;
 
@@ -277,11 +268,11 @@ public class TherapyRow extends Auditable<String> {
 		sb.append(medicalId);
 		sb.append(" - ");
 		sb.append(this.unitID);
-		sb.append(" ");
+		sb.append(' ');
 		sb.append(this.qty);
-		sb.append("/");
+		sb.append('/');
 		sb.append(freqInDay);
-		sb.append("/");
+		sb.append('/');
 		sb.append(this.freqInPeriod);
 		return sb.toString();
 	}
@@ -292,11 +283,10 @@ public class TherapyRow extends Auditable<String> {
 			return true;
 		}
 		
-		if (!(obj instanceof TherapyRow)) {
+		if (!(obj instanceof TherapyRow therapy)) {
 			return false;
 		}
-		
-		TherapyRow therapy = (TherapyRow)obj;
+
 		return (therapyID == therapy.getTherapyID());
 	}
 	

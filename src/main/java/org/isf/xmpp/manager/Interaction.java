@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -85,7 +85,7 @@ public class Interaction {
 
 	public String userFromAddress(String address) {
 		int index;
-		index = address.indexOf("@");
+		index = address.indexOf('@');
 		return address.substring(0, index);
 	}
 

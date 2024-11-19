@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2020 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -24,7 +24,6 @@ package org.isf.hospital.manager;
 import org.isf.hospital.model.Hospital;
 import org.isf.hospital.service.HospitalIoOperations;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -36,13 +35,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class HospitalBrowsingManager {
 
-	@Autowired
 	private HospitalIoOperations ioOperations;
 
+	public HospitalBrowsingManager(HospitalIoOperations hospitalIoOperations) {
+		this.ioOperations = hospitalIoOperations;
+	}
+
 	/**
-	 * Reads from database hospital information
+	 * Reads from the database the {@link Hospital} information.
 	 *
-	 * @return {@link Hospital} object
+	 * @return the {@link Hospital} object
 	 * @throws OHServiceException
 	 */
 	public Hospital getHospital() throws OHServiceException {
@@ -50,9 +52,9 @@ public class HospitalBrowsingManager {
 	}
 
 	/**
-	 * Reads from database currency cod
+	 * Reads from the database the currency code.
 	 *
-	 * @return currency cod
+	 * @return the currency code
 	 * @throws OHServiceException
 	 */
 	public String getHospitalCurrencyCod() throws OHServiceException {
@@ -60,9 +62,9 @@ public class HospitalBrowsingManager {
 	}
 
 	/**
-	 * Updates hospital information
+	 * Updates the {@link Hospital} information.
 	 *
-	 * @return <code>true</code> if the hospital informations have been updated, <code>false</code> otherwise
+	 * @return return the updated {@link Hospital} object.
 	 * @throws OHServiceException
 	 */
 	public Hospital updateHospital(Hospital hospital) throws OHServiceException {

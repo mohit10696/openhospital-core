@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -56,7 +56,7 @@ public class OHException extends Exception {
 	 * Sanitize the given {@link String} value. 
 	 * 
 	 * @param value the value to sanitize.
-	 * @return the sanitized value or <code>null</code> if the passed value is <code>null</code>.
+	 * @return the sanitized value or {@code null} if the passed value is {@code null}.
 	 */
 	protected String sanitize(String value)
 	{

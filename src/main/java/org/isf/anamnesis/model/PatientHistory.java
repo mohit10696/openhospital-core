@@ -21,15 +21,15 @@
  */
 package org.isf.anamnesis.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import org.hibernate.annotations.ColumnDefault;
 import org.isf.utils.db.Auditable;
@@ -41,15 +41,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name = "OH_PATIENTHISTORY")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverrides({ @AttributeOverride(name = "createdBy", column = @Column(name = "PAH_CREATED_BY")),
-		@AttributeOverride(name = "createdDate", column = @Column(name = "PAH_CREATED_DATE")),
-		@AttributeOverride(name = "lastModifiedBy", column = @Column(name = "PAH_LAST_MODIFIED_BY")),
-		@AttributeOverride(name = "active", column = @Column(name = "PAH_ACTIVE")),
-		@AttributeOverride(name = "lastModifiedDate", column = @Column(name = "PAH_LAST_MODIFIED_DATE")) })
+@AttributeOverride(name = "createdBy", column = @Column(name = "PAH_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "PAH_CREATED_DATE", updatable = false))
+@AttributeOverride(name = "lastModifiedBy", column = @Column(name = "PAH_LAST_MODIFIED_BY"))
+@AttributeOverride(name = "active", column = @Column(name = "PAH_ACTIVE"))
+@AttributeOverride(name = "lastModifiedDate", column = @Column(name = "PAH_LAST_MODIFIED_DATE"))
 public class PatientHistory extends Auditable<String> implements Comparable<PatientHistory> {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "PAH_ID")
 	private int id;
 
@@ -279,6 +279,10 @@ public class PatientHistory extends Auditable<String> implements Comparable<Pati
 
 	@Column(name = "PAH_PHY_PREG_ABORT")
 	private int phyPregnancyAbort;
+
+	@Version
+	@Column(name = "PAH_LOCK")
+	private int lock;
 
 	@Override
 	public int compareTo(PatientHistory obj) {
@@ -781,5 +785,7 @@ public class PatientHistory extends Auditable<String> implements Comparable<Pati
 		this.patOpenNote = patOpenNote;
 	}
 
+	public int getLock() { return lock; }
 
+	public void setLock(int lock) { this.lock = lock; }
 }

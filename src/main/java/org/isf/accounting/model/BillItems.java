@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -21,43 +21,34 @@
  */
 package org.isf.accounting.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.utils.db.Auditable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * BillItems - model an item in the Bill
- * -----------------------------------------
- * modification history
- * ? - Mwithi - first version
- * 23/08/2051 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_BILLITEMS")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "BLI_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "BLI_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "BLI_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "BLI_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "BLI_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "BLI_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "BLI_LAST_MODIFIED_DATE"))
 public class BillItems extends Auditable<String> {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="BLI_ID")
 	private int id;
 	
@@ -181,16 +172,15 @@ public class BillItems extends Auditable<String> {
 			return true;
 		}
 		
-		if (!(obj instanceof BillItems)) {
+		if (!(obj instanceof BillItems billItem)) {
 			return false;
 		}
-		
-		BillItems billItem = (BillItems)obj;
+
 		return (id == billItem.getId());
 	}
 
 	/**
-	 * get the item ID
+	 * Get the item ID
 	 *
 	 * @return
 	 */

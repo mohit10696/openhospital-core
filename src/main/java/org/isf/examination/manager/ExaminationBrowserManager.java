@@ -35,20 +35,23 @@ import org.isf.patient.model.Patient;
 import org.isf.utils.exception.OHDataValidationException;
 import org.isf.utils.exception.OHServiceException;
 import org.isf.utils.exception.model.OHExceptionMessage;
+import org.isf.utils.pagination.PagedResponse;
 import org.isf.utils.time.TimeTools;
 import org.isf.utils.validator.DefaultSorter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ExaminationBrowserManager {
 
-	@Autowired
 	private ExaminationOperations ioOperations;
 
 	protected HashMap<String, String> diuresisDescriptionHashMap;
 	protected HashMap<String, String> bowelDescriptionHashMap;
 	protected LinkedHashMap<String, String> auscultationHashMap;
+
+	public ExaminationBrowserManager(ExaminationOperations examinationOperations) {
+		this.ioOperations = examinationOperations;
+	}
 
 	/**
 	 * Default PatientExamination
@@ -106,7 +109,7 @@ public class ExaminationBrowserManager {
 	}
 
 	private void buildAuscultationHashMap() {
-		auscultationHashMap = new LinkedHashMap<>();
+		auscultationHashMap = new LinkedHashMap<>(6);
 		auscultationHashMap.put("normal", MessageBundle.getMessage("angal.examination.auscultation.normal.txt"));
 		auscultationHashMap.put("wheezes", MessageBundle.getMessage("angal.examination.auscultation.wheezes.txt"));
 		auscultationHashMap.put("rhonchi", MessageBundle.getMessage("angal.examination.auscultation.rhonchi.txt"));
@@ -147,9 +150,9 @@ public class ExaminationBrowserManager {
 	 * @param patex - the PatientExamination to save
 	 * @throws OHServiceException
 	 */
-	public void saveOrUpdate(PatientExamination patex) throws OHServiceException {
+	public PatientExamination saveOrUpdate(PatientExamination patex) throws OHServiceException {
 		validateExamination(patex);
-		ioOperations.saveOrUpdate(patex);
+		return ioOperations.saveOrUpdate(patex);
 	}
 
 	public PatientExamination getByID(int id) throws OHServiceException {
@@ -158,12 +161,15 @@ public class ExaminationBrowserManager {
 
 	public PatientExamination getLastByPatID(int patID) throws OHServiceException {
 		List<PatientExamination> patExamination = getByPatID(patID);
-
 		return !patExamination.isEmpty() ? patExamination.get(0) : null;
 	}
 
 	public List<PatientExamination> getLastNByPatID(int patID, int number) throws OHServiceException {
 		return ioOperations.getLastNByPatID(patID, number);
+	}
+
+	public PagedResponse<PatientExamination> getLastNByPatIDPageable(int patID, int number) throws OHServiceException {
+		return ioOperations.getLastNByPatIDPageable(patID, number);
 	}
 
 	public List<PatientExamination> getByPatID(int patID) throws OHServiceException {
@@ -188,20 +194,20 @@ public class ExaminationBrowserManager {
 		if (bmi >= 18.5 && bmi < 24.5) {
 			return MessageBundle.getMessage("angal.examination.bmi.normalweight.txt");
 		}
-		if (bmi >= 24.5 && bmi < 30) {
+		if (bmi >= 24.5 && bmi < 30.0) {
 			return MessageBundle.getMessage("angal.examination.bmi.overweight.txt");
 		}
-		if (bmi >= 30 && bmi < 35) {
+		if (bmi >= 30.0 && bmi < 35.0) {
 			return MessageBundle.getMessage("angal.examination.bmi.obesityclassilight.txt");
 		}
-		if (bmi >= 35 && bmi < 40) {
+		if (bmi >= 35.0 && bmi < 40.0) {
 			return MessageBundle.getMessage("angal.examination.bmi.obesityclassiimedium.txt");
 		}
 		return MessageBundle.getMessage("angal.examination.bmi.obesityclassiiisevere.txt");
 	}
 
 	private void buildDiuresisDescriptionHashMap() {
-		diuresisDescriptionHashMap = new HashMap<>();
+		diuresisDescriptionHashMap = new HashMap<>(8);
 		diuresisDescriptionHashMap.put("physiological", MessageBundle.getMessage("angal.examination.diuresis.physiological.txt"));
 		diuresisDescriptionHashMap.put("oliguria", MessageBundle.getMessage("angal.examination.diuresis.oliguria.txt"));
 		diuresisDescriptionHashMap.put("anuria", MessageBundle.getMessage("angal.examination.diuresis.anuria.txt"));
@@ -213,7 +219,7 @@ public class ExaminationBrowserManager {
 	}
 
 	private void buildBowelDescriptionHashMap() {
-		bowelDescriptionHashMap = new HashMap<>();
+		bowelDescriptionHashMap = new HashMap<>(4);
 		bowelDescriptionHashMap.put("regular", MessageBundle.getMessage("angal.examination.bowel.regular.txt"));
 		bowelDescriptionHashMap.put("irregular", MessageBundle.getMessage("angal.examination.bowel.irregular.txt"));
 		bowelDescriptionHashMap.put("constipation", MessageBundle.getMessage("angal.examination.bowel.constipation.txt"));

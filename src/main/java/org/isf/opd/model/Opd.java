@@ -23,19 +23,19 @@ package org.isf.opd.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.disease.model.Disease;
 import org.isf.patient.model.Patient;
@@ -47,35 +47,18 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import com.drew.lang.annotations.Nullable;
 
-/**
- * ------------------------------------------
- * Opd - model for OPD
- * -----------------------------------------
- * modification history
- * 11/12/2005 - Vero, Rick  pupo
- * 21/11/2006 - ross - renamed from Surgery 
- *                   - added visit date, disease 2, diseas3
- *                   - disease is not mandatory if re-attendance
- * 			         - version is now 1.0 
- * 12/06/2008 - ross - added referral from / to
- * 16/06/2008 - ross - added patient detail
- * 05/09/2008 - alex - added fullname e notefield
- * 09/01/2009 - fabrizio - date field modified to type Date
- * 02/06/2015 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_OPD")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "OPD_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "OPD_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "OPD_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "OPD_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "OPD_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "OPD_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "OPD_LAST_MODIFIED_DATE"))
 public class Opd extends Auditable<String> {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="OPD_ID") 
 	private int code;
 	
@@ -397,11 +380,10 @@ public class Opd extends Auditable<String> {
 			return true;
 		}
 		
-		if (!(obj instanceof Opd)) {
+		if (!(obj instanceof Opd opd)) {
 			return false;
 		}
-		
-		Opd opd = (Opd)obj;
+
 		return (code == opd.getCode());
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 import org.isf.medicals.model.Medical;
 
 /**
- * Bean to host Therapies informations extract from TherapyRow beans.
+ * Bean to host Therapies information extracted from TherapyRow beans.
  *
  * @author Mwithi
  */

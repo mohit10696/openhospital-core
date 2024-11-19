@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -21,32 +21,23 @@
  */
 package org.isf.dlvrtype.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.utils.db.Auditable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Delivery Type - model for the delivery type entity
- * -----------------------------------------
- * modification history
- * ? - bob - first version
- * 11/01/2015 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_DELIVERYTYPE")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "DLT_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "DLT_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "DLT_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "DLT_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "DLT_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "DLT_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "DLT_LAST_MODIFIED_DATE"))
@@ -96,8 +87,8 @@ public class DeliveryType extends Auditable<String> {
 
 	@Override
     public boolean equals(Object anObject) {
-        return anObject instanceof DeliveryType && (getCode().equals(((DeliveryType) anObject).getCode())
-		        && getDescription().equalsIgnoreCase(((DeliveryType) anObject).getDescription()));
+        return anObject instanceof DeliveryType && getCode().equals(((DeliveryType) anObject).getCode())
+                && getDescription().equalsIgnoreCase(((DeliveryType) anObject).getDescription());
     }
 
     @Override

@@ -21,23 +21,24 @@
  */
 package org.isf.examination.model;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.patient.model.Patient;
+import org.isf.utils.db.Auditable;
 import org.isf.utils.time.TimeTools;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -49,18 +50,18 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name="OH_PATIENTEXAMINATION")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "PEX_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "PEX_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "PEX_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "PEX_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "PEX_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "PEX_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "PEX_LAST_MODIFIED_DATE"))
-public class PatientExamination implements Serializable, Comparable<PatientExamination> {
+public class PatientExamination extends Auditable<String> implements Comparable<PatientExamination> {
 
 	private static final long serialVersionUID = 1L;
 	public static final int PEX_NOTE_LENGTH = 2000;
 	
 	@Id 
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="PEX_ID")
 	private int pex_ID;
 
@@ -114,6 +115,10 @@ public class PatientExamination implements Serializable, Comparable<PatientExami
 	
 	@Column(name="PEX_NOTE", length=PEX_NOTE_LENGTH)
 	private String pex_note;
+
+	@Version
+	@Column(name = "PEX_LOCK")
+	private int lock;
 	
 	@Transient
 	private volatile int hashCode;
@@ -123,22 +128,22 @@ public class PatientExamination implements Serializable, Comparable<PatientExami
 	}
 	
 	/**
-	 * @param pex_date
-	 * @param patient
-	 * @param pex_height
-	 * @param pex_weight
-	 * @param pex_ap_min
-	 * @param pex_ap_max
-	 * @param pex_hr
-	 * @param pex_temp
-	 * @param pex_sat
-	 * @param pex_hgt
-	 * @param pex_diuresis
-	 * @param pex_diuresis_desc
-	 * @param pex_bowel_desc
-	 * @param pex_rr
-	 * @param pex_ausc
-	 * @param pex_note
+	 * @param pex_date Examination date
+	 * @param patient Patient
+	 * @param pex_height Patient Height
+	 * @param pex_weight Patient Weight
+	 * @param pex_ap_min Patient min arterial pression
+	 * @param pex_ap_max Patient max arterial pression
+	 * @param pex_hr Patient heart beat rate
+	 * @param pex_temp Patient temperature
+	 * @param pex_sat Patient's saturation
+	 * @param pex_hgt Patient HGT
+	 * @param pex_diuresis Patient diuresis
+	 * @param pex_diuresis_desc Patient diuresis description
+	 * @param pex_bowel_desc Patient bowel
+	 * @param pex_rr Patient RR
+	 * @param pex_ausc Patient auscultation
+	 * @param pex_note Extra note
 	 */
 	public PatientExamination(
 			LocalDateTime pex_date, 
@@ -414,6 +419,10 @@ public class PatientExamination implements Serializable, Comparable<PatientExami
 		this.pex_note = pex_note;
 	}
 
+	public int getLock() { return lock; }
+
+	public void setLock(int lock) { this.lock = lock; }
+
 	@Override
 	public int compareTo(PatientExamination o) {
 		return this.pex_date.compareTo(o.getPex_date());
@@ -422,7 +431,7 @@ public class PatientExamination implements Serializable, Comparable<PatientExami
 	public double getBMI() {
 		if (pex_height != null) {
 			double temp = Math.pow(10, 2); // 2 <-- decimal digits;
-			double height = pex_height * (1. / 100); // convert to m
+			double height = pex_height * (1.0 / 100); // convert to m
 			double weight = pex_weight; // Kg
 			return Math.round(weight / Math.pow(height, 2) * temp) / temp ; //getting Kg/m2
 		} else {
@@ -436,11 +445,10 @@ public class PatientExamination implements Serializable, Comparable<PatientExami
 			return true;
 		}
 		
-		if (!(obj instanceof PatientExamination)) {
+		if (!(obj instanceof PatientExamination patex)) {
 			return false;
 		}
-		
-		PatientExamination patex = (PatientExamination)obj;
+
 		return (pex_ID == patex.getPex_ID());
 	}
 	

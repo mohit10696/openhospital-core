@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2024 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.isf.patient.model.Patient;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -37,7 +38,7 @@ public interface PatientIoOperationRepository extends JpaRepository<Patient, Int
 
 	List<Patient> findByDeletedOrDeletedIsNull(char deletionStatus);
 
-	List<Patient> findAllByDeletedIsNullOrDeletedEqualsOrderByName(char patDeleted, Pageable pageable);
+	Page<Patient> findAllByDeletedIsNullOrDeletedEqualsOrderByName(char patDeleted, Pageable pageable);
 
 	@Query("select p from Patient p where p.name = :name and (p.deleted = :deletedStatus or p.deleted is null) order by p.secondName, p.firstName")
 	List<Patient> findByNameAndDeletedOrderByName(@Param("name") String name, @Param("deletedStatus") char deletedStatus);
@@ -45,7 +46,7 @@ public interface PatientIoOperationRepository extends JpaRepository<Patient, Int
 	@Query("select p from Patient p where p.code = :id and (p.deleted = :deletedStatus or p.deleted is null)")
 	List<Patient> findAllWhereIdAndDeleted(@Param("id") Integer id, @Param("deletedStatus") char deletedStatus);
 
-	@Modifying
+	@Modifying(clearAutomatically=true, flushAutomatically=true)
 	@Query(value = "update Patient p set p.deleted = 'Y' where p.code = :id")
 	int updateDeleted(@Param("id") Integer id);
 
@@ -59,4 +60,6 @@ public interface PatientIoOperationRepository extends JpaRepository<Patient, Int
 
 	List<Patient> getPatientsByParams(Map<String, Object> params);
 
+	@Query("select count(p) from Patient p where active=1 and deleted not like 'Y'")
+	long countAllActiveNotDeletedPatients();
 }

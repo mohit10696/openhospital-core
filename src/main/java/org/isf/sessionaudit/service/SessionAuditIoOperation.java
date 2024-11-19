@@ -26,7 +26,6 @@ import java.util.Optional;
 import org.isf.sessionaudit.model.SessionAudit;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,39 +37,42 @@ import org.springframework.transaction.annotation.Transactional;
 @TranslateOHServiceException
 public class SessionAuditIoOperation {
 
-	@Autowired
 	private SessionAuditIoOperationRepository repository;
 
+	public SessionAuditIoOperation(SessionAuditIoOperationRepository sessionAuditIoOperationRepository) {
+		this.repository = sessionAuditIoOperationRepository;
+	}
+
 	/**
-	 * Return the {@link SessionAudit} from the DB
+	 * Return the {@link SessionAudit} given the session audit id.
 	 * 
-	 * @param userCode
-	 *            the user id
+	 * @param sessionAuditId
+	 *            the session audit id
 	 * @return the {@link SessionAudit}
 	 */
 	public Optional<SessionAudit> getSessionAuditById(int sessionAuditId) {
-		return this.repository.findById(sessionAuditId);
+		return repository.findById(sessionAuditId);
 	}
 
 	/**
-	 * Saves the {@link SessionAudit} to the DB
+	 * Saves the {@link SessionAudit}.
 	 * 
 	 * @param sessionAudit
 	 *            the new session audit
-	 * @return true if it was saved
+	 * @return the audit session code
 	 */
 	public int saveSessionAudit(SessionAudit sessionAudit) {
-		return this.repository.save(sessionAudit).getCode();
+		return repository.save(sessionAudit).getCode();
 	}
 
 	/**
-	 * Updates the {@link SessionAudit} to the DB
+	 * Updates the {@link SessionAudit}.
 	 * 
 	 * @param sessionAudit
 	 *            the updated session audit
-	 * @return true if it was saved
+	 * @return the updated {@link SessionAudit} object.
 	 */
-	public boolean updateSessionAudit(SessionAudit sessionAudit) {
-		return this.repository.save(sessionAudit) != null;
+	public SessionAudit updateSessionAudit(SessionAudit sessionAudit) {
+		return repository.save(sessionAudit);
 	}
 }

@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -30,19 +30,21 @@ import org.isf.generaldata.MessageBundle;
 import org.isf.utils.exception.OHDataValidationException;
 import org.isf.utils.exception.OHServiceException;
 import org.isf.utils.exception.model.OHExceptionMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AdmissionTypeBrowserManager {
 
-	@Autowired
 	private AdmissionTypeIoOperation ioOperations;
+
+	public AdmissionTypeBrowserManager(AdmissionTypeIoOperation admissionTypeIoOperation) {
+		this.ioOperations = admissionTypeIoOperation;
+	}
 
 	/**
 	 * Returns all the available {@link AdmissionType}s.
 	 *
-	 * @return a list of admission types or <code>null</code> if the operation fails.
+	 * @return a list of admission types or {@code null} if the operation fails.
 	 * @throws OHServiceException
 	 */
 	public List<AdmissionType> getAdmissionType() throws OHServiceException {
@@ -53,10 +55,10 @@ public class AdmissionTypeBrowserManager {
 	 * Stores a new {@link AdmissionType}.
 	 *
 	 * @param admissionType the admission type to store.
-	 * @return <code>true</code> if the admission type has been stored, <code>false</code> otherwise.
+	 * @return the new AdmissionType object that is persisted.
 	 * @throws OHServiceException
 	 */
-	public boolean newAdmissionType(AdmissionType admissionType) throws OHServiceException {
+	public AdmissionType newAdmissionType(AdmissionType admissionType) throws OHServiceException {
 		validateAdmissionType(admissionType, true);
 		return ioOperations.newAdmissionType(admissionType);
 	}
@@ -65,10 +67,10 @@ public class AdmissionTypeBrowserManager {
 	 * Updates the specified {@link AdmissionType}.
 	 *
 	 * @param admissionType the admission type to update.
-	 * @return <code>true</code> if the admission type has been updated, <code>false</code> otherwise.
+	 * @return the updated AdmissionType object that is persisted.
 	 * @throws OHServiceException
 	 */
-	public boolean updateAdmissionType(AdmissionType admissionType) throws OHServiceException {
+	public AdmissionType updateAdmissionType(AdmissionType admissionType) throws OHServiceException {
 		validateAdmissionType(admissionType, false);
 		return ioOperations.updateAdmissionType(admissionType);
 	}
@@ -77,7 +79,7 @@ public class AdmissionTypeBrowserManager {
 	 * Checks if the specified Code is already used by others {@link AdmissionType}s.
 	 *
 	 * @param code the admission type code to check.
-	 * @return <code>true</code> if the code is already used, <code>false</code> otherwise.
+	 * @return {@code true} if the code is already used, {@code false} otherwise.
 	 * @throws OHServiceException
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {
@@ -88,24 +90,23 @@ public class AdmissionTypeBrowserManager {
 	 * Deletes the specified {@link AdmissionType}.
 	 *
 	 * @param admissionType the admission type to delete.
-	 * @return <code>true</code> if the admission type has been deleted, <code>false</code> otherwise.
 	 * @throws OHServiceException
 	 */
-	public boolean deleteAdmissionType(AdmissionType admissionType) throws OHServiceException {
-		return ioOperations.deleteAdmissionType(admissionType);
+	public void deleteAdmissionType(AdmissionType admissionType) throws OHServiceException {
+		ioOperations.deleteAdmissionType(admissionType);
 	}
 
 	/**
 	 * Verify if the object is valid for CRUD and return a list of errors, if any
 	 *
 	 * @param admissionType
-	 * @param insert <code>true</code> or updated <code>false</code>
+	 * @param insert {@code true} or updated {@code false}
 	 * @throws OHDataValidationException
 	 */
 	protected void validateAdmissionType(AdmissionType admissionType, boolean insert) throws OHServiceException {
 		List<OHExceptionMessage> errors = new ArrayList<>();
 		String key = admissionType.getCode();
-		if (key.equals("")) {
+		if (key.isEmpty()) {
 			errors.add(new OHExceptionMessage(MessageBundle.getMessage("angal.common.pleaseinsertacode.msg")));
 		}
 		if (key.length() > 10) {
@@ -117,7 +118,7 @@ public class AdmissionTypeBrowserManager {
 				errors.add(new OHExceptionMessage(MessageBundle.getMessage("angal.common.thecodeisalreadyinuse.msg")));
 			}
 		}
-		if (admissionType.getDescription().equals("")) {
+		if (admissionType.getDescription().isEmpty()) {
 			errors.add(
 					new OHExceptionMessage(MessageBundle.getMessage("angal.common.pleaseinsertavaliddescription.msg")));
 		}

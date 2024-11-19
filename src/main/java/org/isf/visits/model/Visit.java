@@ -24,18 +24,19 @@ package org.isf.visits.model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.generaldata.MessageBundle;
 import org.isf.patient.model.Patient;
@@ -44,27 +45,18 @@ import org.isf.utils.time.TimeTools;
 import org.isf.ward.model.Ward;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Visits
- * -----------------------------------------
- * modification history
- * ? - ? - first version
- * 1/08/2016 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name = "OH_VISITS")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "VST_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "VST_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "VST_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "VST_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "VST_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "VST_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "VST_LAST_MODIFIED_DATE"))
 public class Visit extends Auditable<String> {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "VST_ID")
 	private int visitID;
 
@@ -86,6 +78,10 @@ public class Visit extends Auditable<String> {
 
 	@Column(name = "VST_NOTE")
 	private String note;
+
+	@Version
+	@Column(name = "VST_LOCK")
+	private int lock;
 
 	/**
 	 * Duration of the visit in minutes
@@ -186,6 +182,10 @@ public class Visit extends Auditable<String> {
 		this.sms = sms;
 	}
 
+	public int getLock() { return lock; }
+
+	public void setLock(int lock) { this.lock = lock; }
+
 	public String toStringSMS() {
 		return formatDateTimeSMS(this.date);
 	}
@@ -206,11 +206,10 @@ public class Visit extends Auditable<String> {
 			return true;
 		}
 
-		if (!(obj instanceof Visit)) {
+		if (!(obj instanceof Visit visit)) {
 			return false;
 		}
 
-		Visit visit = (Visit) obj;
 		return (visitID == visit.getVisitID());
 	}
 
@@ -242,5 +241,4 @@ public class Visit extends Auditable<String> {
 		}
 		return this.hashCode;
 	}
-
 }

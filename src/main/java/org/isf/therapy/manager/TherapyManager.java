@@ -41,27 +41,30 @@ import org.isf.therapy.service.TherapyIoOperations;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
 import org.isf.utils.time.TimeTools;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class TherapyManager {
 
-	@Autowired
 	private TherapyIoOperations ioOperations;
 
-	@Autowired
 	private SmsOperations smsOp;
 
-	@Autowired
 	private PatientBrowserManager patientManager;
 
-	@Autowired
 	private MedicalBrowsingManager medManager;
 
-	@Autowired
 	private MovWardBrowserManager wardManager;
+
+	public TherapyManager(TherapyIoOperations therapyIoOperations, SmsOperations smsOperations, PatientBrowserManager patientBrowserManager,
+	                      MedicalBrowsingManager medicalBrowsingManager, MovWardBrowserManager movWardBrowserManager) {
+		this.ioOperations = therapyIoOperations;
+		this.smsOp = smsOperations;
+		this.patientManager = patientBrowserManager;
+		this.medManager = medicalBrowsingManager;
+		this.wardManager = movWardBrowserManager;
+	}
 
 	/**
 	 * Returns a {@link Therapy} object from a {@link TherapyRow} (DB record)
@@ -141,7 +144,7 @@ public class TherapyManager {
 	/**
 	 * Return the list of {@link TherapyRow}s (therapies) for specified Patient ID
 	 * or
-	 * return all {@link TherapyRow}s (therapies) if <code>0</code> is passed
+	 * return all {@link TherapyRow}s (therapies) if {@code 0} is passed
 	 *
 	 * @param code - the Patient ID
 	 * @return the list of {@link TherapyRow}s (therapies)
@@ -166,7 +169,7 @@ public class TherapyManager {
 	 * Replace all {@link TherapyRow}s (therapies) for related Patient
 	 *
 	 * @param thRows - the list of {@link TherapyRow}s (therapies)
-	 * @return <code>true</code> if the row has been inserted, <code>false</code> otherwise
+	 * @return {@code true} if the row has been inserted, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	@Transactional(rollbackFor = OHServiceException.class)
@@ -206,7 +209,7 @@ public class TherapyManager {
 
 	/**
 	 * Builds the {@link Sms} text for the specified {@link Therapy}
-	 * If length exceed {@code SmsManager.MAX_LENGHT} the message will be cropped
+	 * If length exceed {@code SmsManager.MAX_LENGTH} the message will be cropped
 	 * (example:
 	 * "REMINDER: {@link Medical} 3pcs - 2pd - {@link Therapy#getNote()}")
 	 *
@@ -223,8 +226,8 @@ public class TherapyManager {
 		if (note != null && !note.isEmpty()) {
 			sb.append(" - ").append(note);
 		}
-		if (sb.toString().length() > SmsManager.MAX_LENGHT) {
-			return sb.substring(0, SmsManager.MAX_LENGHT);
+		if (sb.toString().length() > SmsManager.MAX_LENGTH) {
+			return sb.substring(0, SmsManager.MAX_LENGTH);
 		}
 		return sb.toString();
 	}
@@ -233,14 +236,14 @@ public class TherapyManager {
 	 * Delete all {@link TherapyRow}s (therapies) for specified Patient ID
 	 *
 	 * @param code - the Patient ID
-	 * @return <code>true</code> if the therapies have been deleted, <code>false</code> otherwise
+	 * @return {@code true} if the therapies have been deleted, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	@Transactional(rollbackFor = OHServiceException.class)
 	@TranslateOHServiceException
-	public boolean deleteAllTherapies(Integer code) throws OHServiceException {
+	public void deleteAllTherapies(Integer code) throws OHServiceException {
 		Patient patient = patientManager.getPatientById(code);
-		return ioOperations.deleteAllTherapies(patient);
+		ioOperations.deleteAllTherapies(patient);
 	}
 
 	/**
@@ -283,10 +286,8 @@ public class TherapyManager {
 				int currentQuantity = wardManager.getCurrentQuantityInWard(null, med);
 				actualQty += currentQuantity;
 
-				if (neededQty > actualQty) {
-					if (!medOutStock.contains(med)) {
-						medOutStock.add(med);
-					}
+				if (neededQty > actualQty && !medOutStock.contains(med)) {
+					medOutStock.add(med);
 				}
 			}
 		}

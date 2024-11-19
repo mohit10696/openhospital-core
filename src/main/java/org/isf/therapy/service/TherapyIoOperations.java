@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2024 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -27,7 +27,6 @@ import org.isf.patient.model.Patient;
 import org.isf.therapy.model.TherapyRow;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,14 +35,17 @@ import org.springframework.transaction.annotation.Transactional;
 @TranslateOHServiceException
 public class TherapyIoOperations {
 
-	@Autowired
 	private TherapyIoOperationRepository repository;
 
+	public TherapyIoOperations(TherapyIoOperationRepository therapyIoOperationRepository) {
+		this.repository = therapyIoOperationRepository;
+	}
+
 	/**
-	 * Insert a new {@link TherapyRow} (therapy) in the DB
+	 * Insert a new {@link TherapyRow} (therapy) into the DB.
 	 *
 	 * @param thRow - the {@link TherapyRow} (therapy)
-	 * @return the therapyID
+	 * @return the newly inserted {@link TherapyRow} object.
 	 * @throws OHServiceException
 	 */
 	public TherapyRow newTherapy(TherapyRow thRow) throws OHServiceException {
@@ -53,7 +55,7 @@ public class TherapyIoOperations {
 	/**
 	 * Return the list of {@link TherapyRow}s (therapies) for specified Patient ID
 	 * or
-	 * return all {@link TherapyRow}s (therapies) if <code>0</code> is passed
+	 * return all {@link TherapyRow}s (therapies) if {@code 0} is passed
 	 *
 	 * @param patID - the Patient ID
 	 * @return the list of {@link TherapyRow}s (therapies)
@@ -61,29 +63,38 @@ public class TherapyIoOperations {
 	 */
 	public List<TherapyRow> getTherapyRows(int patID) throws OHServiceException {
 		return patID != 0 ? repository.findByPatientCodeOrderByPatientCodeAscTherapyIDAsc(patID)
-				: repository.findAllByOrderByPatientAscTherapyIDAsc();
+						: repository.findAllByOrderByPatientAscTherapyIDAsc();
 	}
 
 	/**
-	 * Delete all {@link TherapyRow}s (therapies) for specified {@link Patient}
+	 * Delete all {@link TherapyRow}s (therapies) for specified {@link Patient}.
 	 *
 	 * @param patient - the {@link Patient}
-	 * @return <code>true</code> if the therapies have been deleted, <code>false</code> otherwise
 	 * @throws OHServiceException
 	 */
-	public boolean deleteAllTherapies(Patient patient) throws OHServiceException {
+	public void deleteAllTherapies(Patient patient) throws OHServiceException {
 		repository.deleteByPatient(patient);
-		return true;
 	}
 
 	/**
-	 * Checks if the code is already in use
+	 * Checks if the code is already in use.
 	 *
 	 * @param code - the therapy code
-	 * @return <code>true</code> if the code is already in use, <code>false</code> otherwise
+	 * @return {@code true} if the code is already in use, {@code false} otherwise
 	 * @throws OHServiceException
 	 */
 	public boolean isCodePresent(Integer code) throws OHServiceException {
 		return repository.existsById(code);
 	}
+
+	/**
+	 * Count active {@link TherapyRow}s
+	 * 
+	 * @return the number of recorded {@link TherapyRow}s
+	 * @throws OHServiceException
+	 */
+	public long countAllActiveTherapies() {
+		return this.repository.countAllActiveTherapies();
+	}
+
 }

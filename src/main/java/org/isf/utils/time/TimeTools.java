@@ -49,11 +49,15 @@ public class TimeTools {
 
 	public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
 
+	public static final String YYYY_MM_DD = "yyyy-MM-dd";
+
+	public static final String DD_MM_YYYY = "dd/MM/yyyy";
+
 	private TimeTools() {
 	}
 
 	/**
-	 * Returns <code>true</code> if the DATE part is the same (no matter the time)
+	 * Returns {@code true} if the DATE part is the same (no matter the time)
 	 *
 	 * @param aDate
 	 * @param today
@@ -74,7 +78,7 @@ public class TimeTools {
 	 *
 	 * @param from
 	 * @param to
-	 * @param ignoreTime - if <code>True</code> only dates will be compared
+	 * @param ignoreTime - if {@code True} only dates will be compared
 	 * @return the number of days, negative if from is after to
 	 */
 	public static int getDaysBetweenDates(LocalDateTime from, LocalDateTime to, boolean ignoreTime) {
@@ -90,7 +94,7 @@ public class TimeTools {
 	 *
 	 * @param from
 	 * @param to
-	 * @param ignoreTime - if <code>True</code> only dates will be compared
+	 * @param ignoreTime - if {@code True} only dates will be compared
 	 * @return the number of days, negative if from is after to
 	 */
 	public static int getDaysBetweenDates(LocalDate from, LocalDate to, boolean ignoreTime) {
@@ -104,7 +108,7 @@ public class TimeTools {
 	 *
 	 * @param from
 	 * @param to
-	 * @param ignoreTime - if <code>True</code> only dates will be compared
+	 * @param ignoreTime - if {@code True} only dates will be compared
 	 * @return the number of days, negative if from is after to
 	 */
 	public static int getWeeksBetweenDates(LocalDateTime from, LocalDateTime to, boolean ignoreTime) {
@@ -120,7 +124,7 @@ public class TimeTools {
 	 *
 	 * @param from
 	 * @param to
-	 * @param ignoreTime - if <code>True</code> only dates will be compared
+	 * @param ignoreTime - if {@code True} only dates will be compared
 	 * @return the number of days, negative if from is after to
 	 */
 	public static int getMonthsBetweenDates(LocalDateTime from, LocalDateTime to, boolean ignoreTime) {
@@ -153,7 +157,7 @@ public class TimeTools {
 	 * Return a string representation of the dateTime with the given pattern
 	 *
 	 * @param dateTime - a LocalDateTime object
-	 * @param pattern - the pattern. If <code>null</code> "yyyy-MM-dd HH:mm:ss" will be used
+	 * @param pattern - the pattern. If {@code null} "yyyy-MM-dd HH:mm:ss" will be used
 	 * @return the String representation of the LocalDateTime
 	 */
 	public static String formatDateTime(LocalDateTime dateTime, String pattern) {
@@ -187,6 +191,7 @@ public class TimeTools {
 
 	/**
 	 * Truncate date time to SECONDS only if value is non-null
+	 * 
 	 * @param dateTime
 	 * @return LocaleDateTime turncated to seconds
 	 */
@@ -225,8 +230,8 @@ public class TimeTools {
 	 * Return a {@link LocalDateTime} representation of the string using the given pattern
 	 *
 	 * @param string - a String object to be passed
-	 * @param pattern - the pattern. If <code>null</code> "yyyy-MM-dd HH:mm:ss" will be used
-	 * @param noTime - if <code>true</code> the time will be 00:00:00, actual time otherwise.
+	 * @param pattern - the pattern. If {@code null} "yyyy-MM-dd HH:mm:ss" will be used
+	 * @param noTime - if {@code true} the time will be 00:00:00, actual time otherwise.
 	 * @return the String representation of the LocalDateTime
 	 */
 	public static LocalDateTime parseDate(String string, String pattern, boolean noTime) {
@@ -237,9 +242,9 @@ public class TimeTools {
 		DateTimeFormatter format = DateTimeFormatter.ofPattern(pattern);
 		LocalDateTime dateTime;
 		if (noTime) {
-			/**
-			 * regarding to https://stackoverflow.com/questions/27454025/unable-to-obtain-localdatetime-from-temporalaccessor-when-parsing-localdatetime
-			 * Java does not accept a bare Date value as DateTime
+			/*
+			 * regarding to https://stackoverflow.com/questions/27454025/unable-to-obtain-localdatetime-from-temporalaccessor-when-parsing-localdatetime Java
+			 * does not accept a bare Date value as DateTime
 			 */
 			LocalDate date = LocalDate.parse(string, format);
 			dateTime = date.atTime(LocalTime.MIN).truncatedTo(ChronoUnit.SECONDS);

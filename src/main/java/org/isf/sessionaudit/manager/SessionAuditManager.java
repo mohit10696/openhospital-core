@@ -26,7 +26,6 @@ import java.util.Optional;
 import org.isf.sessionaudit.model.SessionAudit;
 import org.isf.sessionaudit.service.SessionAuditIoOperation;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,14 +34,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class SessionAuditManager {
 
-	@Autowired
 	private SessionAuditIoOperation ioOperation;
 
-	
+	public SessionAuditManager(SessionAuditIoOperation sessionAuditIoOperation) {
+		this.ioOperation = sessionAuditIoOperation;
+	}
+
 	/**
-	 * Retrieves the {@link SessionAudit} associated to the given user id.
+	 * Retrieves the {@link SessionAudit} associated with the given user id.
 	 *
-	 * @param userCode the user id.
+	 * @param sessionAuditId the session audit id.
 	 * @return the users {@link SessionAudit}
 	 * @throws OHServiceException
 	 */
@@ -51,10 +52,10 @@ public class SessionAuditManager {
 	}
 
 	/**
-	 * Stores the {@link SessionAudit} associated to the given user id in the db.
+	 * Stores the {@link SessionAudit} associated to the given user id.
 	 *
 	 * @param sessionAudit the {link SessionAudit}.
-	 * @return the result of saving operation
+	 * @return the audit session code
 	 * @throws OHServiceException
 	 */
 	public int newSessionAudit(SessionAudit sessionAudit) throws OHServiceException {
@@ -64,11 +65,11 @@ public class SessionAuditManager {
 	/**
 	 * Updates the specified {@link SessionAudit}.
 	 *
-	 * @param malnutrition the {@link SessionAudit} to update
-	 * @return the updated {@link SessionAudit}
+	 * @param sessionAudit the {@link SessionAudit} to update
+	 * @return the updated {@link SessionAudit} object.
 	 * @throws OHServiceException
 	 */
-	public boolean updateSessionAudit(SessionAudit sessionAudit) throws OHServiceException {
+	public SessionAudit updateSessionAudit(SessionAudit sessionAudit) throws OHServiceException {
 		return ioOperation.updateSessionAudit(sessionAudit);
 	}
 

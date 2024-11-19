@@ -21,39 +21,31 @@
  */
 package org.isf.permissions.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.menu.model.UserGroup;
 import org.isf.utils.db.Auditable;
 
-/*------------------------------------------
- * User - model for the user entity
- * -----------------------------------------
- * modification history
- * 24/12/2020 - Andrei - first version
- * 
- *------------------------------------------*/
 @Entity
 @Table(name = "OH_GROUPPERMISSION")
-		@AttributeOverrides({ 
-			@AttributeOverride(name = "createdBy", column = @Column(name = "GP_CREATED_BY")), 
-			@AttributeOverride(name = "createdDate", column = @Column(name = "GP_CREATED_DATE")), 
-			@AttributeOverride(name = "lastModifiedBy", column = @Column(name = "GP_LAST_MODIFIED_BY")),
-			@AttributeOverride(name = "lastModifiedDate", column = @Column(name = "GP_LAST_MODIFIED_DATE")), 
-			@AttributeOverride(name = "active", column = @Column(name = "GP_ACTIVE"))})
+@AttributeOverride(name = "createdBy", column = @Column(name = "GP_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "GP_CREATED_DATE", updatable = false))
+@AttributeOverride(name = "lastModifiedBy", column = @Column(name = "GP_LAST_MODIFIED_BY"))
+@AttributeOverride(name = "lastModifiedDate", column = @Column(name = "GP_LAST_MODIFIED_DATE"))
+@AttributeOverride(name = "active", column = @Column(name = "GP_ACTIVE"))
 public class GroupPermission extends Auditable<String> {
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "GP_ID")
 	private int id;
 
@@ -64,8 +56,16 @@ public class GroupPermission extends Auditable<String> {
 
 	@NotNull
 	@ManyToOne
-	@JoinColumn(name = "GP_P_ID_A", referencedColumnName="P_ID_A")
+	@JoinColumn(name = "GP_P_ID_A", referencedColumnName = "P_ID_A")
 	private Permission permission;
+
+	public GroupPermission() {
+	}
+
+	public GroupPermission(UserGroup userGroup, Permission permission) {
+		this.userGroup = userGroup;
+		this.permission = permission;
+	}
 
 	public int getId() {
 		return id;
@@ -90,7 +90,5 @@ public class GroupPermission extends Auditable<String> {
 	public void setUserGroup(UserGroup userGroup) {
 		this.userGroup = userGroup;
 	}
-	
-	
 
 }

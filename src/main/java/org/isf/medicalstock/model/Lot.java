@@ -24,16 +24,17 @@ package org.isf.medicalstock.model;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.generaldata.GeneralData;
 import org.isf.generaldata.MessageBundle;
@@ -43,20 +44,11 @@ import org.isf.utils.db.Auditable;
 import org.isf.utils.time.TimeTools;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Medical Lot - model for the medical lot entity
- * -----------------------------------------
- * modification history
- * ? - ?
- * 17/01/2015 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_MEDICALDSRLOT")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "LT_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "LT_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "LT_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "LT_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "LT_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "LT_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "LT_LAST_MODIFIED_DATE"))
@@ -90,7 +82,7 @@ public class Lot extends Auditable<String> {
 	 * NB: COALESCE is needed for legacy connection to lots migrated from a version prior v1.11.0;
 	 * in theory, there should not exist lots without an initial charge movement
 	 * in the main MedicalStock, but sometimes it could happen if 
-	 * {@link MedicalStockWardIoOperations} are enabled (with {@link GeneralData}<code>.INTERNALPHARMACIES=true</code>) 
+	 * {@link MedicalStockWardIoOperations} are enabled (with {@link GeneralData}{@code .INTERNALPHARMACIES=true})
 	 * and some lots are registered directly there at the time of the first inventory.
 	 * 
 	 * @see <a href="https://github.com/informatici/openhospital-doc/blob/develop/doc_admin/AdminManual.adoc#5-1-19-internalpharmacies">Admin Manual</a>
@@ -113,7 +105,7 @@ public class Lot extends Auditable<String> {
 	private double wardsTotalQuantity;
 	
 	/**
-	 * Automatic calculated field for a overall lot's quantity (MedicalStock + MedicalStockWards).<br>
+	 * Automatic calculated field for an overall lot's quantity (MedicalStock + MedicalStockWards).<br>
 	 * 
 	 * <i>
 	 * @see <a href="https://github.com/informatici/openhospital-doc/blob/develop/doc_admin/AdminManual.adoc#5-1-19-internalpharmacies">Admin Manual</a>
@@ -125,6 +117,10 @@ public class Lot extends Auditable<String> {
 
 	@Transient
 	private volatile int hashCode;
+	
+	@Version
+	@Column(name="LT_LOCK")
+	private int lock;
 
 	public Lot() {
 	}
@@ -205,6 +201,14 @@ public class Lot extends Auditable<String> {
 
 	public void setCost(BigDecimal cost) {
 		this.cost = cost;
+	}
+	
+	public int getLock() {
+		return lock;
+	}
+	
+	public void setLock(int lock) {
+		this.lock = lock;
 	}
 
 	@Override

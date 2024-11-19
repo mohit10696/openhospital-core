@@ -35,7 +35,6 @@ import org.isf.utils.exception.model.OHSeverityLevel;
 import org.isf.utils.validator.EmailValidator;
 import org.isf.ward.model.Ward;
 import org.isf.ward.service.WardIoOperations;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -47,16 +46,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class WardBrowserManager {
 
-	@Autowired
 	private AdmissionBrowserManager admManager;
 	
-	@Autowired
 	private WardIoOperations ioOperations;
 
+	public WardBrowserManager(AdmissionBrowserManager admissionBrowserManager, WardIoOperations wardIoOperations) {
+		this.admManager = admissionBrowserManager;
+		this.ioOperations = wardIoOperations;
+	}
+
 	/**
-	 * Verify if the object is valid for CRUD and return a list of errors, if any
-	 * @param ward
-	 * @param insert <code>true</code> or updated <code>false</code>
+	 * Verify if the object is valid for CRUD and return a list of errors, if any.
+	 * @param ward the {@link Ward} object to validate.
+	 * @param insert {@code true} or updated {@code false}
 	 * @throws OHServiceException 
 	 */
 	protected void validateWard(Ward ward, boolean insert) throws OHServiceException {
@@ -96,8 +98,8 @@ public class WardBrowserManager {
 	}
 	
 	/**
-	 * Returns all stored wards.
-	 * In case of error a message error is shown and a <code>null</code> value is returned.
+	 * Returns all stored {@link Ward}s.
+	 * In case of error a message error is shown and a {@code null} value is returned.
 	 * @return the stored wards.
 	 * @throws OHServiceException 
 	 */
@@ -106,7 +108,7 @@ public class WardBrowserManager {
 	}
 	
 	/**
-	 * Retrieves all store {@link Ward}s with beds > {@code 0}
+	 * Retrieve all stored {@link Ward}s with beds > {@code 0}
 	 * @return the list of wards
 	 */
 	public List<Ward> getIpdWards() {
@@ -114,7 +116,7 @@ public class WardBrowserManager {
 	}
 	
 	/**
-	 * Retrieves all store {@link Ward}s with isOpd = {@code true}
+	 * Retrieve all stored {@link Ward}s with isOpd = {@code true}
 	 * @return the list of wards
 	 */
 	public List<Ward> getOpdWards() {
@@ -126,10 +128,9 @@ public class WardBrowserManager {
 		return ioOperations.getWards(ward.getCode());
 	}
 	/**
-	 * Returns all the stored {@link Ward} with maternity flag <code>false</code>.
-	 * In case of error a message error is shown and a <code>null</code> value is returned.
-	 * @return the stored diseases with maternity flag false.
-	 * @return
+	 * Returns all the stored {@link Ward}s with maternity flag equal to {@code false}.
+	 * In case of error a message error is shown and a {@code null} value is returned.
+	 * @return the stored {@link Ward}s with maternity flag false.
 	 * @throws OHServiceException 
 	 */
 	public List<Ward> getWardsNoMaternity() throws OHServiceException {
@@ -138,9 +139,8 @@ public class WardBrowserManager {
 
 	/**
 	 * Stores the specified {@link Ward}. 
-	 * In case of error a message error is shown and a <code>false</code> value is returned.
 	 * @param ward the ward to store.
-	 * @return ward that has been stored.
+	 * @return the {@link Ward} object that has been stored.
 	 * @throws OHServiceException 
 	 */
 	public Ward newWard(Ward ward) throws OHServiceException {
@@ -150,10 +150,8 @@ public class WardBrowserManager {
 
 	/**
 	 * Updates the specified {@link Ward}.
-	 * If the ward has been updated concurrently a overwrite confirmation message is shown.
-	 * In case of error a message error is shown and a <code>false</code> value is returned.
-	 * @param ward the ward to update.
-	 * @return ward that has been updated
+	 * @param ward the {@link Ward} to update.
+	 * @return the {@link Ward} object that was updated.
 	 * @throws OHServiceException 
 	 */
 	public Ward updateWard(Ward ward) throws OHServiceException {
@@ -163,12 +161,10 @@ public class WardBrowserManager {
 
 	/**
 	 * Mark as deleted the specified {@link Ward}.
-	 * In case of error a message error is shown and a <code>false</code> value is returned.
-	 * @param ward the ward to make delete.
-	 * @return <code>true</code> if the ward has been marked, <code>false</code> otherwise.
-	 * @throws OHServiceException 
+	 * @param ward the ward to mark as deleted.
+	 * @throws OHServiceException
 	 */
-	public boolean deleteWard(Ward ward) throws OHServiceException {
+	public void deleteWard(Ward ward) throws OHServiceException {
 		if (ward.getCode().equals("M")) {
 			throw new OHOperationNotAllowedException(new OHExceptionMessage(MessageBundle.getMessage("angal.ward.cannotdeletematernityward.msg")));
 		}
@@ -178,22 +174,21 @@ public class WardBrowserManager {
 		int noPatients = admManager.getUsedWardBed(ward.getCode());
 
 		if (noPatients > 0) {
-
-			List<OHExceptionMessage> messages = new ArrayList<>();
+			List<OHExceptionMessage> messages = new ArrayList<>(2);
 			messages.add(new OHExceptionMessage(MessageBundle.getMessage("angal.common.info.title"),
 			                                    MessageBundle.formatMessage("angal.ward.theselectedwardhaspatients.fmt.msg", noPatients),
 			                                    OHSeverityLevel.INFO));
 			messages.add(new OHExceptionMessage(MessageBundle.getMessage("angal.ward.pleasecheckinadmissionpatients.msg")));
 			throw new OHOperationNotAllowedException(messages);
 		}
-		return ioOperations.deleteWard(ward);
+		ioOperations.deleteWard(ward);
 	}
 	
 	/**
-	 * Check if the specified code is used by other {@link Ward}s.
-	 * In case of error a message error is shown and a <code>false</code> value is returned.
+	 * Check if the specified code is used by another {@link Ward}.
+	 * In case of error a message error is shown and a {@code false} value is returned.
 	 * @param code the code to check.
-	 * @return <code>true</code> if it is already used, <code>false</code> otherwise.
+	 * @return {@code true} if it is already used, {@code false} otherwise.
 	 * @throws OHServiceException 
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {
@@ -201,7 +196,7 @@ public class WardBrowserManager {
 	}
 	
 	/**
-	 * Create default Maternity {@link Ward} as follow:
+	 * Create default Maternity {@link Ward} as follows:
 	 * {'code' : "M",
 	 * 'Description' : MessageBundle.getMessage("angal.ward.maternity.txt"),
 	 * 'Telephone' : "234/52544",
@@ -236,7 +231,7 @@ public class WardBrowserManager {
 	}
 	
 	/**
-	 * Create default OPD {@link Ward} as follow:
+	 * Create default OPD {@link Ward} as follows:
 	 * {'code' : "M",
 	 * 'Description' : MessageBundle.getMessage("angal.ward.maternity.txt"),
 	 * 'Telephone' : "235/52544",
@@ -274,7 +269,7 @@ public class WardBrowserManager {
 	 * Check if the Maternity {@link Ward} with code "M" exists or not.
 	 * @param createIfNotExists - if {@code true} it will create the missing {@link Ward} (with default values)
 	 * 	and will return {@link true} 
-	 * @return <code>true</code> if the Maternity {@link Ward} exists, <code>false</code> otherwise.
+	 * @return {@code true} if the Maternity {@link Ward} exists, {@code false} otherwise.
 	 * @throws OHServiceException 
 	 */
 	public boolean maternityControl(boolean createIfNotExists) throws OHServiceException {
@@ -292,7 +287,7 @@ public class WardBrowserManager {
 	 * Check if the OPD {@link Ward} with code "OPD" exists or not.
 	 * @param createIfNotExists - if {@code true} it will create the missing {@link Ward} (with default values)
 	 * 	and will return {@link true} 
-	 * @return <code>true</code> if the OPD {@link Ward} exists, <code>false</code> otherwise.
+	 * @return {@code true} if the OPD {@link Ward} exists, {@code false} otherwise.
 	 * @throws OHServiceException 
 	 */
 	public boolean opdControl(boolean createIfNotExists) throws OHServiceException {
@@ -307,9 +302,9 @@ public class WardBrowserManager {
 	}
 	
 	/**
-	 * Retrieves the number of patients currently admitted in the {@link Ward}
+	 * Retrieves the number of patients currently admitted in the {@link Ward}.
 	 * @param ward - the ward
-	 * @return the number of patients currently admitted, <code>-1</code> if an error occurs
+	 * @return the number of patients currently admitted, {@code -1} if an error occurs
 	 * @throws OHServiceException 
 	 */
 	public int getCurrentOccupation(Ward ward) throws OHServiceException {
@@ -317,10 +312,10 @@ public class WardBrowserManager {
 	}
 
 	/**
-	 * Returns the {@link Ward} based on ward code
+	 * Returns the {@link Ward} based on ward code,
 	 *
-	 * @param code - the  {@link Ward} code.
-	 * @return the {@link Ward}
+	 * @param code - the {@link Ward} code.
+	 * @return the {@link Ward} or {@code null} if not found
 	 */
 	public Ward findWard(String code) throws OHServiceException {
 		return ioOperations.findWard(code);

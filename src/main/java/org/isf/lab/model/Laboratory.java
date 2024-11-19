@@ -23,19 +23,19 @@ package org.isf.lab.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.exa.model.Exam;
 import org.isf.patient.model.Patient;
@@ -43,28 +43,18 @@ import org.isf.utils.db.Auditable;
 import org.isf.utils.time.TimeTools;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Laboratory - laboratory execution model
- * -----------------------------------------
- * modification history
- * 02/03/2006 - theo - first beta version
- * 10/11/2006 - ross - new fields data esame, sex, age, material, inout flag added
- * 06/01/2016 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_LABORATORY")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "LAB_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "LAB_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "LAB_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "LAB_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "LAB_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "LAB_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "LAB_LAST_MODIFIED_DATE"))
 public class Laboratory extends Auditable<String> {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="LAB_ID")
 	private Integer code;
 
@@ -140,12 +130,6 @@ public class Laboratory extends Auditable<String> {
 	public LocalDateTime getLabDate() {
 		return labDate;
 	}
-	/*
-	 * @deprecated use getLabDate()
-	 */
-	public LocalDateTime getDate() {
-		return labDate;
-	}
 	public String getResult() {
 		return result;
 	}
@@ -167,12 +151,7 @@ public class Laboratory extends Auditable<String> {
 	public void setLabDate(LocalDateTime aDate) {
 		labDate = TimeTools.truncateToSeconds(aDate);
 	}
-	/*
-	 * @deprecated use setLabDate()
-	 */
-	public void setDate(LocalDateTime aDate) {
-		labDate = TimeTools.truncateToSeconds(aDate);
-	}
+
 	public void setResult(String aResult) {
 		result = aResult;
 	}
@@ -246,11 +225,10 @@ public class Laboratory extends Auditable<String> {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Laboratory)) {
+		if (!(obj instanceof Laboratory laboratory)) {
 			return false;
 		}
 
-		Laboratory laboratory = (Laboratory) obj;
 		return (this.getCode().equals(laboratory.getCode()));
 
 	}

@@ -26,18 +26,20 @@ import java.util.List;
 import org.isf.exatype.model.ExamType;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(rollbackFor=OHServiceException.class)
+@Transactional(rollbackFor = OHServiceException.class)
 @TranslateOHServiceException
 public class ExamTypeIoOperation {
 
-	@Autowired
-	private ExamTypeIoOperationRepository repository;
-	
+	private final ExamTypeIoOperationRepository repository;
+
+	public ExamTypeIoOperation(ExamTypeIoOperationRepository examTypeIoOperationRepository) {
+		this.repository = examTypeIoOperationRepository;
+	}
+
 	/**
 	 * Return the list of {@link ExamType}s.
 	 * @return the list of {@link ExamType}s.
@@ -46,46 +48,53 @@ public class ExamTypeIoOperation {
 	public List<ExamType> getExamType() throws OHServiceException {
 		return repository.findAllByOrderByDescriptionAsc();
 	}
-	
+
 	/**
 	 * Update an already existing {@link ExamType}.
 	 * @param examType - the {@link ExamType} to update
-	 * @return <code>true</code> if the examType has been updated, <code>false</code> otherwise.
+	 * @return the updated {@link ExamType}.
 	 * @throws OHServiceException
 	 */
 	public ExamType updateExamType(ExamType examType) throws OHServiceException {
 		return repository.save(examType);
 	}
-	
+
 	/**
 	 * Insert a new {@link ExamType} in the DB.
 	 * @param examType - the {@link ExamType} to insert.
-	 * @return <code>true</code> if the examType has been inserted, <code>false</code> otherwise.
+	 * @return the newly persisted {@link ExamType}.
 	 * @throws OHServiceException
 	 */
 	public ExamType newExamType(ExamType examType) throws OHServiceException {
 		return repository.save(examType);
 	}
-	
+
 	/**
 	 * Delete the passed {@link ExamType}.
 	 * @param examType - the {@link ExamType} to delete.
-	 * @return <code>true</code> if the examType has been deleted, <code>false</code> otherwise.
 	 * @throws OHServiceException
 	 */
-	public boolean deleteExamType(ExamType examType) throws OHServiceException {
+	public void deleteExamType(ExamType examType) throws OHServiceException {
 		repository.delete(examType);
-		return true;
 	}
-	
+
 	/**
-	 * This function controls the presence of a record with the same code as in
-	 * the parameter.
+	 * This function controls the presence of a record with the same code as in the parameter.
 	 * @param code - the code
-	 * @return <code>true</code> if the code is present, <code>false</code> otherwise.
+	 * @return {@code true} if the code is present, {@code false} otherwise.
 	 * @throws OHServiceException
 	 */
 	public boolean isCodePresent(String code) throws OHServiceException {
 		return repository.existsById(code);
+	}
+
+	/**
+	 * Find exam type by code
+	 * @param code - the code
+	 * @return The exam type if found, {@code null} otherwise.
+	 * @throws OHServiceException
+	 */
+	public ExamType findByCode(String code) throws OHServiceException {
+		return repository.findById(code).orElse(null);
 	}
 }

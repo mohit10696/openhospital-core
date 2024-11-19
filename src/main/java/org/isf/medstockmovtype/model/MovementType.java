@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -21,120 +21,124 @@
  */
 package org.isf.medstockmovtype.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.utils.db.Auditable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * MovementType - model for the movement type
- * -----------------------------------------
- * modification history
- * ? - bob - first version
- * 18/01/2015 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
-@Table(name="OH_MEDICALDSRSTOCKMOVTYPE")
+@Table(name = "OH_MEDICALDSRSTOCKMOVTYPE")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "MMVT_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "MMVT_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "MMVT_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "MMVT_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "MMVT_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "MMVT_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "MMVT_LAST_MODIFIED_DATE"))
 public class MovementType extends Auditable<String> {
 
 	@Id
-	@Column(name="MMVT_ID_A")	   
-    private String code;
+	@Column(name = "MMVT_ID_A")
+	private String code;
 
 	@NotNull
-	@Column(name="MMVT_DESC")	
-    private String description;
+	@Column(name = "MMVT_DESC")
+	private String description;
 
 	@NotNull
-	@Column(name="MMVT_TYPE")	
-    private String type;
+	@Column(name = "MMVT_TYPE")
+	private String type;
+
+	@NotNull
+	@Column(name = "MMVT_CATEGORY")
+	private String category; // 'operational' or 'non-operational'
 
 	@Transient
 	private volatile int hashCode;
 
 	public MovementType() {
 	}
-    
-    /**
-     * @param code
-     * @param description
-     * @param type
-     */
-    public MovementType(String code, String description, String type) {
-	    this.code = code;
-	    this.description = description;
-	    this.type = type;
-    }
-    
-    public String getCode() {
-        return this.code;
-    }
-    
-    public void setCode(String code) {
-        this.code = code;
-    }
-    
-    public String getDescription() {
-        return this.description;
-    }
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
+
+	/**
+	 * @param code
+	 * @param description
+	 * @param type
+	 * @param category
+	 */
+	public MovementType(String code, String description, String type, String category) {
+		this.code = code;
+		this.description = description;
+		this.type = type;
+		this.category = category;
+	}
+
+	public String getCode() {
+		return this.code;
+	}
+
+	public void setCode(String code) {
+		this.code = code;
+	}
+
+	public String getDescription() {
+		return this.description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	public String getType() {
 		return type;
 	}
-	
+
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-    @Override
-    public String toString() {
-        return getDescription();
-    }
-    
-    @Override
+
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
+	@Override
+	public String toString() {
+		return getDescription();
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
 		}
-		
-		if (!(obj instanceof MovementType)) {
+
+		if (!(obj instanceof MovementType movementType)) {
 			return false;
 		}
-		
-		MovementType movementType = (MovementType)obj;
+
 		return (this.getCode().equals(movementType.getCode()));
 	}
-	
+
 	@Override
 	public int hashCode() {
-	    if (this.hashCode == 0) {
-	        final int m = 23;
-	        int c = 133;
-	        
-	        c = m * c + code.hashCode();
-	        
-	        this.hashCode = c;
-	    }
-	  
-	    return this.hashCode;
-	}	
+		if (this.hashCode == 0) {
+			final int m = 23;
+			int c = 133;
+
+			c = m * c + code.hashCode();
+
+			this.hashCode = c;
+		}
+
+		return this.hashCode;
+	}
 }

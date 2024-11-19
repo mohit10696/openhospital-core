@@ -26,7 +26,6 @@ import java.util.List;
 import org.isf.agetype.model.AgeType;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,11 +35,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor=OHServiceException.class)
 @TranslateOHServiceException
-public class AgeTypeIoOperations 
-{
-	@Autowired
+public class AgeTypeIoOperations {
+
 	private AgeTypeIoOperationRepository repository;
-	
+
+	public AgeTypeIoOperations(AgeTypeIoOperationRepository ageTypeIoOperationRepository) {
+		this.repository = ageTypeIoOperationRepository;
+	}
+
 	/**
 	 * Returns all available age types.
 	 * @return a list of {@link AgeType}.
@@ -53,17 +55,17 @@ public class AgeTypeIoOperations
 	/**
 	 * Updates the list of {@link AgeType}s.
 	 * @param ageType the {@link AgeType} to update.
-	 * @return <code>true</code> if the list has been updated, <code>false</code> otherwise.
+	 * @return a list of updated {@link AgeType}s.
 	 * @throws OHServiceException if an error occurs during the update.
 	 */
-	public boolean updateAgeType(List<AgeType> ageType) throws OHServiceException {
-		return repository.saveAll(ageType) != null;
+	public List<AgeType> updateAgeType(List<AgeType> ageType) throws OHServiceException {
+		return repository.saveAll(ageType);
 	}
 
 	/**
 	 * Gets the {@link AgeType} from the code index.
 	 * @param index the code index.
-	 * @return the retrieved element, <code>null</code> otherwise.
+	 * @return the retrieved element, {@code null} otherwise.
 	 * @throws OHServiceException if an error occurs retrieving the item.
 	 */
 	public AgeType getAgeTypeByCode(int index) throws OHServiceException {
@@ -74,7 +76,7 @@ public class AgeTypeIoOperations
 	/**
 	 * Gets the {@link AgeType} from the code index.
 	 * @param code of agetype.
-	 * @return the retrieved element, <code>null</code> otherwise.
+	 * @return the retrieved element, {@code null} otherwise.
 	 * @throws OHServiceException if an error occurs retrieving the item.
 	 */
 	public AgeType getAgeTypeByCode(String code) throws OHServiceException {

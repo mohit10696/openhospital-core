@@ -38,32 +38,36 @@ import org.isf.patient.service.PatientIoOperations;
 import org.isf.utils.exception.OHDataValidationException;
 import org.isf.utils.exception.OHServiceException;
 import org.isf.utils.exception.model.OHExceptionMessage;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.isf.utils.pagination.PagedResponse;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PatientBrowserManager {
 
-	@Autowired
-	private PatientIoOperations ioOperations;
+	private final PatientIoOperations ioOperations;
 
-	@Autowired
-	private AdmissionBrowserManager admissionManager;
+	private final AdmissionBrowserManager admissionManager;
 
-	@Autowired
-	private BillBrowserManager billManager;
+	private final BillBrowserManager billManager;
 
 	protected LinkedHashMap<String, String> maritalHashMap;
 
 	protected LinkedHashMap<String, String> professionHashMap;
 
+	public PatientBrowserManager(PatientIoOperations ioOperations, AdmissionBrowserManager admissionManager, BillBrowserManager billManager) {
+		this.ioOperations = ioOperations;
+		this.admissionManager = admissionManager;
+		this.billManager = billManager;
+	}
+
 	/**
-	 * Method that inserts a new Patient in the db
+	 * Method that inserts a new {@link Patient}.
 	 *
 	 * @param patient
-	 * @return saved / updated patient
-	 * @throws OHServiceException when validation failed
+	 * @return saved / updated {@link Patient}
+	 * @throws OHServiceException
+	 *             when validation failed
 	 */
 	public Patient savePatient(Patient patient) throws OHServiceException {
 		validatePatient(patient);
@@ -71,9 +75,9 @@ public class PatientBrowserManager {
 	}
 
 	/**
-	 * Method that returns the full list of Patients not logically deleted
+	 * Method that returns the full list of {@link Patient}s not logically deleted.
 	 *
-	 * @return the list of patients (could be empty)
+	 * @return the list of {@link Patient}s (could be empty)
 	 * @throws OHServiceException
 	 */
 	public List<Patient> getPatient() throws OHServiceException {
@@ -81,7 +85,7 @@ public class PatientBrowserManager {
 	}
 
 	/**
-	 * Method that returns the full list of Patients not logically deleted by pages
+	 * Method that returns the full list of {@link Patient}s not logically deleted by pages.
 	 *
 	 * @return the list of patients (could be empty)
 	 * @throws OHServiceException
@@ -89,26 +93,16 @@ public class PatientBrowserManager {
 	public List<Patient> getPatient(int page, int size) throws OHServiceException {
 		return ioOperations.getPatients(PageRequest.of(page, size));
 	}
-
-	/**
-	 * Method that gets a Patient by his/her name
-	 *
-	 * @param name
-	 * @return the Patient that match specified name (could be null)
-	 * @throws OHServiceException
-	 * @deprecated use getPatient(Integer code) for one patient or
-	 * getPatientsByOneOfFieldsLike(String regex) for a list
-	 */
-	@Deprecated
-	public Patient getPatientByName(String name) throws OHServiceException {
-		return ioOperations.getPatient(name);
+	
+	public PagedResponse<Patient> getPatientsPageable(int page, int size) throws OHServiceException {
+		return ioOperations.getPatientsPageable(PageRequest.of(page, size));
 	}
 
 	/**
-	 * Method that get a Patient list by his/her name
+	 * Method that gets a list of {@link Patient}s by his/her name.
 	 *
 	 * @param params
-	 * @return the list of Patients that match specified name
+	 * @return the list of {@link Patient}s that match specified name.
 	 * @throws OHServiceException
 	 */
 	public List<Patient> getPatients(Map<String, Object> params) throws OHServiceException {
@@ -116,10 +110,10 @@ public class PatientBrowserManager {
 	}
 
 	/**
-	 * Method that gets a Patient by his/her ID
+	 * Method that gets a {@link Patient} by his/her ID.
 	 *
 	 * @param code
-	 * @return the Patient (could be null)
+	 * @return the {@link Patient} (could be {@code null})
 	 * @throws OHServiceException
 	 */
 	public Patient getPatientById(Integer code) throws OHServiceException {
@@ -127,10 +121,10 @@ public class PatientBrowserManager {
 	}
 
 	/**
-	 * Get a Patient by his/her ID, even if he/her has been logically deleted
+	 * Get a {@link Patient} by his/her ID, even if he/her has been logically deleted.
 	 *
 	 * @param code
-	 * @return the list of Patients (could be null)
+	 * @return the {@link Patient} (could be {@code null})
 	 * @throws OHServiceException
 	 */
 	public Patient getPatientAll(Integer code) throws OHServiceException {
@@ -148,7 +142,7 @@ public class PatientBrowserManager {
 	}
 
 	private void buildMaritalHashMap() {
-		maritalHashMap = new LinkedHashMap<>();
+		maritalHashMap = new LinkedHashMap<>(5);
 		maritalHashMap.put("unknown", MessageBundle.getMessage("angal.patient.maritalstatusunknown.txt"));
 		maritalHashMap.put("single", MessageBundle.getMessage("angal.patient.maritalstatussingle.txt"));
 		maritalHashMap.put("married", MessageBundle.getMessage("angal.patient.maritalstatusmarried.txt"));
@@ -186,7 +180,7 @@ public class PatientBrowserManager {
 	}
 
 	private void buildProfessionHashMap() {
-		professionHashMap = new LinkedHashMap<>();
+		professionHashMap = new LinkedHashMap<>(12);
 		professionHashMap.put("unknown", MessageBundle.getMessage("angal.patient.profession.unknown.txt"));
 		professionHashMap.put("other", MessageBundle.getMessage("angal.patient.profession.other.txt"));
 		professionHashMap.put("farming", MessageBundle.getMessage("angal.patient.profession.farming.txt"));
@@ -260,22 +254,23 @@ public class PatientBrowserManager {
 	}
 
 	/**
-	 * Method that logically delete a Patient (not physically deleted)
+	 * Method that logically deletes a {@link Patient} (not physically deleted).
 	 *
-	 * @param patient - the {@link Patient} to be deleted
-	 * @return true - if the Patient has been deleted (logically)
+	 * @param patient
+	 *            - the {@link Patient} to be deleted
 	 * @throws OHServiceException
 	 */
-	public boolean deletePatient(Patient patient) throws OHServiceException {
-		return ioOperations.deletePatient(patient);
+	public void deletePatient(Patient patient) throws OHServiceException {
+		ioOperations.deletePatient(patient);
 	}
 
 	/**
-	 * Method that checks if the patient's name is already present in the DB
-	 * (the passed string 'name' should be a concatenation of firstName + " " + secondName)
+	 * Method that checks if the {@link Patient}'s name is already present in the DB (the passed string 'name' should
+	 * be a concatenation of firstName + " " + secondName).
 	 *
-	 * @param name - name of the patient
-	 * @return true - if the patient is already present
+	 * @param name
+	 *            - name of the patient
+	 * @return true - if the {@link Patient} is already present
 	 * @throws OHServiceException
 	 */
 	public boolean isNamePresent(String name) throws OHServiceException {
@@ -283,48 +278,46 @@ public class PatientBrowserManager {
 	}
 
 	/**
-	 * Method that returns the full list of Patients not logically deleted, having the passed String in:<br>
+	 * Method that returns the full list of {@link Patient}s not logically deleted, having the passed String in:<br>
 	 * - code<br>
 	 * - firstName<br>
 	 * - secondName<br>
 	 * - taxCode<br>
 	 * - note<br>
 	 *
-	 * @param keyword - String to search, <code>null</code> for full list
-	 * @return the list of Patients (could be empty)
+	 * @param keyword
+	 *            - String to search, {@code null} for full list
+	 * @return the list of {@link Patient}s (could be empty)
 	 * @throws OHServiceException
 	 */
 	public List<Patient> getPatientsByOneOfFieldsLike(String keyword) throws OHServiceException {
 		return ioOperations.getPatientsByOneOfFieldsLike(keyword);
 	}
-	
-	
+
 	public PatientProfilePhoto retrievePatientProfilePhoto(Patient patient) throws OHServiceException {
 		return ioOperations.retrievePatientProfilePhoto(patient);
 	}
-	
 
 	/**
-	 * Method that merges patients and all clinic details under the same PAT_ID
+	 * Method that merges {@link Patient}s and all clinic details under the same PAT_ID.
 	 *
 	 * @param mergedPatient
 	 * @param patient2
-	 * @return true - if no OHServiceException occurred
 	 * @throws OHServiceException
 	 */
-	public boolean mergePatient(Patient mergedPatient, Patient patient2) throws OHServiceException {
+	public void mergePatient(Patient mergedPatient, Patient patient2) throws OHServiceException {
 		if (mergedPatient.getBirthDate() != null && StringUtils.isEmpty(mergedPatient.getAgetype())) {
-			//mergedPatient only Age
+			// mergedPatient only Age
 			LocalDate bdate2 = patient2.getBirthDate();
 			int age2 = patient2.getAge();
 			String ageType2 = patient2.getAgetype();
 			if (bdate2 != null) {
-				//patient2 has BirthDate
+				// patient2 has BirthDate
 				mergedPatient.setAge(age2);
 				mergedPatient.setBirthDate(bdate2);
 			}
 			if (bdate2 != null && StringUtils.isNotEmpty(ageType2)) {
-				//patient2 has AgeType
+				// patient2 has AgeType
 				mergedPatient.setAge(age2);
 				mergedPatient.setAgetype(ageType2);
 			}
@@ -382,14 +375,14 @@ public class PatientBrowserManager {
 		}
 
 		validateMergePatients(mergedPatient, patient2);
-		return ioOperations.mergePatientHistory(mergedPatient, patient2);
+		ioOperations.mergePatientHistory(mergedPatient, patient2);
 	}
 
 	/**
-	 * Verify if the object is valid for CRUD and return a list of errors, if any
+	 * Verify if the object is valid for CRUD and return a list of errors, if any.
 	 *
 	 * @param patient
-	 * @throws OHDataValidationException 
+	 * @throws OHDataValidationException
 	 */
 	protected void validatePatient(Patient patient) throws OHDataValidationException {
 		List<OHExceptionMessage> errors = new ArrayList<>();
@@ -410,7 +403,7 @@ public class PatientBrowserManager {
 			throw new OHDataValidationException(errors);
 		}
 	}
-	
+
 	private boolean checkAge(Patient patient) {
 		LocalDate now = LocalDate.now();
 		LocalDate birthDate = patient.getBirthDate();
@@ -419,9 +412,10 @@ public class PatientBrowserManager {
 		}
 		return birthDate != null && !birthDate.isAfter(now);
 	}
-	
+
 	/**
-	 * Method that returns the full list of Cities of the patient not logically deleted: <br>
+	 * Method that returns the full list of Cities of the {@link Patient}s not logically deleted.
+	 * 
 	 * @return the list of Cities (could be empty)
 	 * @throws OHServiceException
 	 */

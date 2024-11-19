@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -21,34 +21,26 @@
  */
 package org.isf.menu.model;
 
-import javax.persistence.Column;
-import javax.persistence.ColumnResult;
-import javax.persistence.Entity;
-import javax.persistence.EntityResult;
-import javax.persistence.FieldResult;
-import javax.persistence.Id;
-import javax.persistence.SqlResultSetMapping;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.ColumnResult;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityResult;
+import jakarta.persistence.FieldResult;
+import jakarta.persistence.Id;
+import jakarta.persistence.SqlResultSetMapping;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
+import org.hibernate.type.YesNoConverter;
 import org.isf.generaldata.MessageBundle;
+import org.springframework.data.annotation.Transient;
 
-/**
- * ------------------------------------------
- * UserUserMenuItem - an item in user menu
- * not pure model class
- * -----------------------------------------
- * modification history
- * ? 		  - flavio - first version
- * 07/05/2016 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_MENUITEM")
 @SqlResultSetMapping(name="UserMenuItemWithStatus",
 	entities={
-	    @EntityResult(entityClass=org.isf.menu.model.UserMenuItem.class, fields={
+	    @EntityResult(entityClass=UserMenuItem.class, fields={
                 @FieldResult(name="code", column="MNI_ID_A"),
                 @FieldResult(name="buttonLabel", column="MNI_BTN_LABEL"), 
                 @FieldResult(name="altLabel", column="MNI_LABEL"),
@@ -62,8 +54,8 @@ import org.isf.generaldata.MessageBundle;
 	columns={
 	    @ColumnResult(name="is_active")}
 	)
-public class UserMenuItem 
-{
+public class UserMenuItem {
+
 	@Id 
 	@Column(name="MNI_ID_A")	
 	private String 	code;
@@ -90,6 +82,7 @@ public class UserMenuItem
 	@Column(name="MNI_CLASS")
 	private String	myClass;
 
+	@Convert(converter = YesNoConverter.class)
 	@NotNull
 	@Column(name="MNI_IS_SUBMENU")
 	private boolean	isASubMenu;

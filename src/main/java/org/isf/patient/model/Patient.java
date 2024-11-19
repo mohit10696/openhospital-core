@@ -24,76 +24,42 @@ package org.isf.patient.model;
 import java.time.LocalDate;
 import java.time.Period;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.StringUtils;
+import org.isf.anamnesis.model.PatientHistory;
 import org.isf.opd.model.Opd;
+import org.isf.patconsensus.model.PatientConsensus;
 import org.isf.utils.db.Auditable;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Patient - model for the patient entity
- * -----------------------------------------
- * modification history
- * 05/05/2005 - giacomo  - first beta version
- * 03/11/2006 - ross - added toString method
- * 11/08/2008 - Alessandro
- * - added mother and father names textfield
- * - added birthdate and age check
- * 19/08/2008 - Mex        - substitute EduLevel with BloodType
- * 22/08/2008 - Claudio
- * - added birth date field
- * - modified age field
- * 01/01/2009 - Fabrizio
- * - modified age field type back to int
- * - removed unuseful super() call in constructor
- * - removed unuseful todo comment
- * - removed assignment to attribute hasInsurance since it had no effect
- * 16/09/2009 - Alessandro - added equals override to support comparing and filtering
- * 17/10/2011 - Alessandro - added height and weight (from malnutritionalcontrol)
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_PATIENT")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "PAT_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "PAT_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "PAT_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "PAT_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "PAT_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "PAT_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "PAT_LAST_MODIFIED_DATE"))
 
 public class Patient extends Auditable<String> {
-	/*
-	 * PAT_ID int NOT NULL AUTO_INCREMENT , PAT_FNAME varchar (50) NOT NULL ,
-	 * --first name (nome) PAT_SNAME varchar (50) NOT NULL , --second name
-	 * (cognome) PAT_AGE int NOT NULL , --age PAT_SEX char (1) NOT NULL , --sex :
-	 * M or F PAT_ADDR varchar (50) NULL , --address (via , n.) PAT_CITY varchar
-	 * (50) NOT NULL , --city PAT_NEXT_KIN varchar (50) NULL , --next kin
-	 * (parente prossimo, figlio di..) PAT_TELE varchar (50) NULL , --telephone
-	 * number PAT_MOTH char (1) NULL , --mother: D=dead, A=alive PAT_FATH char
-	 * (1) NULL , --father: D=dead, A=alive PAT_LEDU char (1) NULL , --level of
-	 * education: 1 or 2 or 3 or 4 PAT_ESTA char (1) NULL , --economic status:
-	 * R=rich, P=poor PAT_PTOGE char (1) NULL , --parents together: Y or N
-	 * PAT_LOCK int NOT NULL default 0, PRIMARY KEY ( PAT_ID )
-	 */
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="PAT_ID")
 	private Integer code;
 
@@ -108,7 +74,7 @@ public class Patient extends Auditable<String> {
 	@NotNull
 	@Column(name="PAT_NAME")
 	private String name;
-	
+
 	@NotNull
 	@Column(name="PAT_BDATE")	// SQL type: date
 	private LocalDate birthDate;
@@ -123,50 +89,50 @@ public class Patient extends Auditable<String> {
 	@NotNull
 	@Column(name="PAT_SEX")
 	private char sex;
-	
+
 	@Column(name="PAT_ADDR")
 	private String address;
 
 	@NotNull
 	@Column(name="PAT_CITY")
 	private String city;
-	
+
 	@Column(name="PAT_NEXT_KIN")
 	private String nextKin;
-	
+
 	@Column(name="PAT_TELE")
 	private String telephone;
-	
+
 	@Column(name="PAT_NOTE")
 	private String note;
 
 	@NotNull
 	@Column(name="PAT_MOTH_NAME")
 	private String motherName; // mother's name
-	
+
 	@Column(name="PAT_MOTH")
 	private char mother = ' '; // D=dead, A=alive
 
 	@NotNull
 	@Column(name="PAT_FATH_NAME")
 	private String fatherName; // father's name
-	
+
 	@Column(name="PAT_FATH")
 	private char father = ' '; // D=dead, A=alive
 
 	@NotNull
 	@Column(name="PAT_BTYPE")
 	private String bloodType; // (0-/+, A-/+ , B-/+, AB-/+)
-	
+
 	@Column(name="PAT_ESTA")
 	private char hasInsurance = ' '; // Y=Yes, N=no
-	
+
 	@Column(name="PAT_PTOGE")
 	private char parentTogether = ' '; // parents together: Y or N
-	
+
 	@Column(name="PAT_TAXCODE")
 	private String taxCode;
-	
+
 	@Column(name="PAT_MAR_STAT")
 	private String maritalStatus;
 
@@ -176,48 +142,50 @@ public class Patient extends Auditable<String> {
 	@NotNull
 	@Column(name="PAT_DELETED", columnDefinition = "char(1) default 'N'")
 	private char deleted = 'N';
-	
+
 	/**
 	 * field for "ui"
 	 * NOTE: to be replaced with {@link PatientHistory}
 	 */
 	@Column(name="PAT_ANAMNESIS")
 	private String anamnesis;
-	
+
 	/**
 	 * field for "ui"
 	 * NOTE: to be replaced with {@link PatientHistory}
 	 */
 	@Column(name="PAT_ALLERGIES")
 	private String allergies;
-	
+
 	@Version
 	@Column(name="PAT_LOCK")
 	private int lock;
-	
+
 	@OneToOne(
-			fetch = FetchType.LAZY, 
-			cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, 
+			fetch = FetchType.LAZY,
+			cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE },
 			orphanRemoval = true
 	)
 	@JoinColumn(name = "PAT_PROFILE_PHOTO_ID", referencedColumnName = "PAT_PROFILE_PHOTO_ID", nullable = true)
 	private PatientProfilePhoto patientProfilePhoto; // nullable because user can choose to save on file system
-	
+
 	@Transient
 	private volatile int hashCode;
-	
+
+	@OneToOne(mappedBy = "patient", cascade = CascadeType.ALL)
+	private PatientConsensus patientConsensus;
 
 	public Patient() {
 		this.firstName = "";
-		this.secondName = ""; 
+		this.secondName = "";
 		this.name = this.firstName + ' ' + this.secondName;
-		this.birthDate = null;
+		this.birthDate = null;    // TODO the field is marked as "@NotNull"
 		this.age = 0;
 		this.agetype = "";
 		this.sex = ' ';
 		this.address = "";
 		this.city = "";
-		this.nextKin = ""; 
+		this.nextKin = "";
 		this.telephone = "";
 		this.motherName = "";
 		this.mother = ' ';
@@ -230,18 +198,18 @@ public class Patient extends Auditable<String> {
 		this.maritalStatus = "";
 		this.profession = "";
 	}
-	
+
 	public Patient(Opd opd) {
 		this.firstName = opd.getfirstName();
-		this.secondName = opd.getsecondName(); 
+		this.secondName = opd.getsecondName();
 		this.name = this.firstName + ' ' + this.secondName;
-		this.birthDate = null;
+		this.birthDate = null;    // TODO the field is marked as "@NotNull"
 		this.age = opd.getAge();
 		this.agetype = "";
 		this.sex = opd.getSex();
 		this.address = opd.getaddress();
 		this.city = opd.getcity();
-		this.nextKin = opd.getnextKin(); 
+		this.nextKin = opd.getnextKin();
 		this.telephone = "";
 		this.motherName = "";
 		this.mother = ' ';
@@ -253,11 +221,11 @@ public class Patient extends Auditable<String> {
 		this.maritalStatus = "";
 		this.profession = "";
 	}
-	
+
 	public Patient(String firstName, String secondName, LocalDate birthDate, int age, String agetype, char sex,
 			String address, String city, String nextKin, String telephone,
 			String motherName, char mother, String fatherName, char father,
-			String bloodType, char economicStatut, char parentTogether, String personalCode, 
+			String bloodType, char economicStatut, char parentTogether, String personalCode,
 			String maritalStatus, String profession) { //Changed EduLev with bloodType
 		this.firstName = firstName;
 		this.secondName = secondName;
@@ -281,7 +249,7 @@ public class Patient extends Auditable<String> {
 		this.maritalStatus = maritalStatus;
 		this.profession = profession;
 	}
-		
+
 	public Patient(int code, String firstName, String secondName, String name, LocalDate birthDate, int age, String agetype, char sex,
 			String address, String city, String nextKin, String telephone, String note,
 			String motherName, char mother, String fatherName, char father,
@@ -312,6 +280,15 @@ public class Patient extends Auditable<String> {
 		this.profession = profession;
 	}
 
+	public PatientConsensus getPatientConsensus() {
+		return patientConsensus;
+	}
+
+
+	public void setPatientConsensus(PatientConsensus patientConsensus) {
+		this.patientConsensus = patientConsensus;
+	}
+
 	public String getAddress() {
 		return address;
 	}
@@ -319,7 +296,7 @@ public class Patient extends Auditable<String> {
 	public void setAddress(String address) {
 		this.address = address;
 	}
-	
+
 	public LocalDate getBirthDate() {
 		return birthDate;
 	}
@@ -335,7 +312,7 @@ public class Patient extends Auditable<String> {
 		}
 		return age;
 	}
-	
+
 	public void setAge(int age) {
 		this.age = age;
 	}
@@ -417,11 +394,11 @@ public class Patient extends Auditable<String> {
 	public String getBloodType() {
 	    return bloodType;
 	}
-	
+
 	public void setBloodType(String bloodType) {
 		this.bloodType = bloodType;
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}
@@ -494,7 +471,7 @@ public class Patient extends Auditable<String> {
 	public void setTaxCode(String taxCode) {
 		this.taxCode = taxCode;
 	}
-	
+
 	public String getMaritalStatus() {
 		return maritalStatus;
 	}
@@ -510,7 +487,7 @@ public class Patient extends Auditable<String> {
 	public void setProfession(String profession) {
 		this.profession = profession;
 	}
-	
+
     public char getDeleted() {
         return deleted;
     }
@@ -521,7 +498,7 @@ public class Patient extends Auditable<String> {
 
 	public PatientProfilePhoto getPatientProfilePhoto() {
 		return patientProfilePhoto;
-	}	
+	}
 
 	/**
 	 * field for "ui"
@@ -557,17 +534,17 @@ public class Patient extends Auditable<String> {
 
 	/**
 	 * Method kept as POJO standard, but it ignores {@code name} param
-	 * and uses {@link firstName} and {@link secondName} to set
-	 * the field (as {@link setFirstName} and {@link setSecondName}
+	 * and uses {@link #firstName} and {@link #secondName} to set
+	 * the field (as {@link #setFirstName} and {@link #setSecondName}
 	 * methods do as well).
 	 * 
-	 * @param name (ignored, used {@code firstName} and {@code secondName} instead
+	 * @param name (ignored, uses {@code firstName} and {@code secondName} instead
 	 */
 	public void setName(String name) {
 		this.name = this.firstName + ' ' + this.secondName;
 	}
 
-	public void setPatientProfilePhoto(final PatientProfilePhoto patientProfilePhoto) {
+	public void setPatientProfilePhoto(PatientProfilePhoto patientProfilePhoto) {
 		if (patientProfilePhoto == null) {
 			if (this.patientProfilePhoto != null) {
 				this.patientProfilePhoto.setPatient(null);
@@ -583,29 +560,28 @@ public class Patient extends Auditable<String> {
 		if (this == obj) {
 			return true;
 		}
-		
-		if (!(obj instanceof Patient)) {
+
+		if (!(obj instanceof Patient patient)) {
 			return false;
 		}
-		
-		Patient patient = (Patient)obj;
+
 		return (this.getCode().equals(patient.getCode()));
 	}
-	
+
 	@Override
 	public int hashCode() {
 	    if (this.hashCode == 0) {
 	        final int m = 23;
 	        int c = 133;
-	        
+
 	        c = m * c + ((code == null) ? 0 : code);
-	        
+
 	        this.hashCode = c;
 	    }
-	  
+
 	    return this.hashCode;
 	}
-	
+
 	public String getSearchString() {
 		StringBuilder sbName = new StringBuilder();
 		sbName.append(getCode());
@@ -630,7 +606,7 @@ public class Patient extends Auditable<String> {
 		}
 		return sbName.toString();
 	}
-	
+
 	public String getInformations() {
 		int i = 0;
 		StringBuilder infoBfr = new StringBuilder();

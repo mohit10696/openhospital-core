@@ -6,7 +6,7 @@ The Core component is used by the [Java Swing desktop GUI][openhospital-gui], an
 
 ## How to build
 
-After having installed Java JDK 8+ and Maven, to build this project issue:  
+After having installed Java JDK 17+ and Maven (or using the provided Maven Wrapper `mvnw`), to build this project issue:  
 
     mvn package
 
@@ -18,11 +18,46 @@ To run the tests simply issue:
 
     mvn test
 
-Tests are run against an in-memory database (H2).  
-To test the application against MySQL, you can change [`database.properties`][database.prop] and run the Docker container in the root folder with:
+Note: tests are run against an in-memory database (H2). 
 
-    # clean previous build
+To run tests against a MariaDB instance, see [How to run DB with Docker](#how-to-run-db-with-docker)
+
+Then you can change [`src/test/resources/resources/database.properties`][database.prop]
+
+From:
+
+    jdbc.class=org.h2.Driver
+    jdbc.url=jdbc:h2:mem:myDb;MODE=MySQL;IGNORECASE=TRUE;DB_CLOSE_DELAY=-1
+    ...
+    hibernate.dialect=org.hibernate.dialect.H2Dialect
+    hibernate.hbm2ddl.auto=update
+    jdbc.username=root
+    jdbc.password=root
+
+To: (use .env variables):
+
+    jdbc.url=jdbc:mysql://localhost:[OH_MARIADB_PORT]/[OH_MARIADB_DATABASE]
+    jdbc.username=[OH_MARIADB_USER]
+    jdbc.password=[OH_MARIADB_PASSWORD]
+
+
+## How to run DB with Docker
+
+Copy `dotenv` into `.env` and set parameters as needed, otherwise defaults will be used:
+
+    OH_MARIADB_DATABASE=oh
+    OH_MARIADB_ROOT_PASSWORD=root
+    OH_MARIADB_USER=isf
+    OH_MARIADB_PASSWORD=isf123
+    OH_MARIADB_PORT=3306
+    OH_DB_LANG=en # refer to sql/data_xx/ folders
+
+Clean previous builds:
+
     docker compose rm --stop --volumes --force
+    
+Build and run a mariadb instance at `localhost:[OH_MARIADB_PORT]`:
+
     docker-compose up
 
 

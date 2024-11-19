@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2024 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.isf.admission.model.Admission;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -53,8 +54,17 @@ public interface AdmissionIoOperationRepository extends JpaRepository<Admission,
 	List<Admission> findAllWhereWardIn(@Param("ward") String ward);
 
 	@Query(value = "select a FROM Admission a WHERE a.admDate >= :dateFrom AND a.admDate <= :dateTo and a.deleted = 'N'")
-	List<Admission> findAllWhereAdmissionDate(@Param("dateFrom") LocalDateTime dateFrom, @Param("dateTo") LocalDateTime dateTo, Pageable pageable);
+	List<Admission> findAllWhereAdmissionDate(@Param("dateFrom") LocalDateTime dateFrom, @Param("dateTo") LocalDateTime dateTo);
 
 	@Query(value = "select a FROM Admission a WHERE a.disDate >= :dateFrom AND a.disDate <= :dateTo and a.deleted = 'N'")
-	List<Admission> findAllWhereDischargeDate(@Param("dateFrom") LocalDateTime dateFrom, @Param("dateTo") LocalDateTime dateTo, Pageable pageable);
+	List<Admission> findAllWhereDischargeDate(@Param("dateFrom") LocalDateTime dateFrom, @Param("dateTo") LocalDateTime dateTo);
+
+	@Query(value = "select a FROM Admission a WHERE a.admDate >= :dateFrom AND a.admDate <= :dateTo and a.deleted = 'N'")
+	Page<Admission> findAllWhere_AdmissionDate_Paginated(@Param("dateFrom") LocalDateTime dateFrom, @Param("dateTo") LocalDateTime dateTo, Pageable pageable);
+
+	@Query(value = "select a FROM Admission a WHERE a.disDate >= :dateFrom AND a.disDate <= :dateTo and a.deleted = 'N'")
+	Page<Admission> findAllWhere_DischargeDate_Paginated(@Param("dateFrom") LocalDateTime dateFrom, @Param("dateTo") LocalDateTime dateTo, Pageable pageable);
+
+	@Query("select count(a) from Admission a where active=1 and deleted not like 'Y'")
+	long countAllActiveNotDeletedAdmissions();
 }

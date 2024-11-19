@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2024 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -37,14 +37,28 @@ public interface UserIoOperationRepository extends JpaRepository<User, String> {
 
 	List<User> findAllByOrderByUserNameAsc();
 
+	List<User> findAllByDeletedOrderByUserNameAsc(boolean deleted);
+
 	User findByUserName(String userName);
 
+	List<User> findAllByDeleted(boolean deleted);
+
+	User findByUserNameAndDeleted(String userName, boolean deleted);
+
 	@Query(value = "select user from User user where user.userGroupName.code=:groupId order by user.userName")
-	List<User> findAllWhereUserGroupNameByOrderUserNameAsc(@Param("groupId") String groupId);
+	List<User> findAllByUserGroupIdOrderByUserNameAsc(@Param("groupId") String groupId);
+
+	@Query(value = "select user from User user where user.userGroupName.code=:groupId and deleted=:deleted order by user.userName")
+	List<User> findAllByUserGroupIdAndDeletedOrderByUserNameAsc(@Param("groupId") String groupId, @Param("deleted") boolean deleted);
 
 	@Modifying
 	@Query(value = "update User user set user.desc=:description, user.userGroupName=:groupName where user.userName=:id")
 	int updateUser(@Param("description") String description, @Param("groupName") UserGroup groupName, @Param("id") String id);
+
+	@Modifying
+	@Query(value = "update User user set user.desc=:description, user.userGroupName=:groupName, user.deleted=:deleted where user.userName=:id")
+	int updateUser(@Param("description") String description, @Param("groupName") UserGroup groupName, @Param("deleted") boolean deleted,
+		@Param("id") String id);
 
 	@Modifying
 	@Query(value = "update User set passwd=:password where userName=:id")
@@ -57,5 +71,21 @@ public interface UserIoOperationRepository extends JpaRepository<User, String> {
 	@Modifying
 	@Query(value = "update User set isAccountLocked=:isLocked, lockedTime=:lockTime where userName=:id")
 	void updateUserLocked(@Param("isLocked") boolean isLocked, @Param("lockTime") LocalDateTime lockTime, @Param("id") String id);
+
+	@Modifying
+	@Query(value = "update User set lastLogin=:lastLoggedIn where userName=:id")
+	void setLastLogin(@Param("lastLoggedIn") LocalDateTime lockTime, @Param("id") String id);
+
+	@Query("select count(u) from User u where active=1 and deleted=false")
+	long countAllActiveUsers();
+
+	@Query("select count(u) from User u where active=1 and deleted=:deleted")
+	long countAllActiveUsersByDeleted(@Param("deleted") boolean deleted);
+
+	@Query("select count(g) from UserGroup g where active=1 and deleted=false")
+	long countAllActiveGroups();
+
+	@Query("select count(g) from UserGroup g where active=1 and deleted=:deleted")
+	long countAllActiveGroupsByDeleted(@Param("deleted") boolean deleted);
 
 }

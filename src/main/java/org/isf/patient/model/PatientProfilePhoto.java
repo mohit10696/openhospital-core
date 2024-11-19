@@ -27,14 +27,15 @@ import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 
 import javax.imageio.ImageIO;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
 /**
  * Photo related to a single {@link Patient}
@@ -44,7 +45,7 @@ import javax.persistence.Table;
 public class PatientProfilePhoto implements Serializable {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="PAT_PROFILE_PHOTO_ID")
 	private Integer code;
 
@@ -56,9 +57,6 @@ public class PatientProfilePhoto implements Serializable {
 	private byte[] photo;
 
 
-	public byte[] getPhoto() {
-		return photo;
-	}
 
 	public Image getPhotoAsImage() {
 		try {
@@ -72,9 +70,6 @@ public class PatientProfilePhoto implements Serializable {
 		}
 	}
 
-	public void setPhoto(byte[] photo) {
-		this.photo = photo;
-	}
 
 	public Patient getPatient() {
 		return patient;
@@ -83,4 +78,18 @@ public class PatientProfilePhoto implements Serializable {
 	public void setPatient(final Patient patient) {
 		this.patient = patient;
 	}
+
+
+
+	public byte[] getPhoto() {
+		return photo;
+	}
+
+
+
+	public void setPhoto(byte[] photo) {
+		this.photo = photo;
+	}
+
+
 }

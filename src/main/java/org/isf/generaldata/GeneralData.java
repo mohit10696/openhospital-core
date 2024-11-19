@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2024 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -22,30 +22,20 @@
 package org.isf.generaldata;
 
 /**
- * ------------------------------------------
  * General Data
- * <p>
- *    12/2007 - isf bari - added resource bundle for internationalization
- * 19/06/2008 - isf bari - added patientsheet jasper report name
- * 20/12/2008 - isf bari - added patientextended
- * 01/01/2009 - Fabrizio - added OPDEXTENDED
- * 20/01/2009 - Chiara   - added attribute MATERNITYRESTARTINJUNE to reset progressive number of maternity ward
- * 25/02/2011 - Claudia  - added attribute MAINMENUALWAYSONTOP to handle main menu always on Top 
- * 01/05/2011 - Vito 	 - added attribute VIDEOMODULEENABLED to enable/disable video module
- * 10/08/2011 - Claudia  - added PATIENTVACCINEEXTENDED to show patient on Patient Vaccine 
- * 19/10/2011 - Mwithi   - GeneralData 2.0: catching exception on single property and assign DEFAULT value  
- * 29/12/2011 - Nicola   - added XMPPMODULEENABLED to enable/disable communication module
- * 06/07/2022 - Nicole   - added USERSLISTLOGIN to login by typing the username in a textbox (no) or selecting the user from a list (yes)
- * -------------------------------------------
  */
 public final class GeneralData extends ConfigurationProperties {
-	
+
 	private static final String FILE_PROPERTIES = "settings.properties";
 	private static final boolean EXIT_ON_FAIL = true;
-	
+
 	private final boolean SINGLEUSER;
 	private final boolean USERSLISTLOGIN;
-	
+
+	public static String MODE;
+	public static boolean DEMODATA;
+	public static boolean APISERVER;
+
 	public static String LANGUAGE;
 	public static boolean AUTOMATICLOT_IN;
 	public static boolean AUTOMATICLOT_OUT;
@@ -75,6 +65,7 @@ public final class GeneralData extends ConfigurationProperties {
 	public static boolean INTERNALPHARMACIES;
 	public static boolean MERGEFUNCTION;
 	public static boolean SMSENABLED;
+	public static boolean TELEMETRYENABLED;
 	public static String VIEWER;
 	public static boolean MAINMENUALWAYSONTOP;
 	public static boolean RECEIPTPRINTER;
@@ -91,15 +82,20 @@ public final class GeneralData extends ConfigurationProperties {
 	public static boolean DEBUG;
 	public static String PATIENTPHOTOSTORAGE;
 	public static Integer SESSIONTIMEOUT;
+	public static String PARAMSURL;
 
 	public static boolean STRONGPASSWORD;
 	public static int STRONGLENGTH;
 	public static int PASSWORDTRIES;
 	public static int PASSWORDLOCKTIME;
+	public static int PASSWORDIDLE;
 
 	private static final String DEFAULT_LANGUAGE = "en";
 	private static final boolean DEFAULT_SINGLEUSER = false;
 	private static final boolean DEFAULT_USERSLISTLOGIN = false;
+	private static final String DEFAULT_MODE = "";
+	private static final boolean DEFAULT_DEMODATA = false;
+	private static final boolean DEFAULT_APISERVER = false;
 	private static final boolean DEFAULT_AUTOMATICLOT_IN = true;
 	private static final boolean DEFAULT_AUTOMATICLOT_OUT = true;
 	private static final boolean DEFAULT_AUTOMATICLOTWARD_TOWARD = true;
@@ -116,7 +112,7 @@ public final class GeneralData extends ConfigurationProperties {
 	private static final String DEFAULT_BILLSREPORTMONTHLY = "BillsReportMonthly";
 	private static final String DEFAULT_PHARMACEUTICALORDER = "PharmaceuticalOrder";
 	private static final String DEFAULT_PHARMACEUTICALSTOCK = "PharmaceuticalStock_ver4";
-	private static final String DEFAULT_PHARMACEUTICALSTOCKLOT = "PharmaceuticalStock_ver5"; //TODO: verify if really used
+	private static final String DEFAULT_PHARMACEUTICALSTOCKLOT = "PharmaceuticalStock_ver5"; // TODO: verify if really used
 	private static final String DEFAULT_PHARMACEUTICALAMC = "PharmaceuticalAMC";
 	private static final boolean DEFAULT_PATIENTEXTENDED = false;
 	private static final boolean DEFAULT_OPDEXTENDED = false;
@@ -128,6 +124,7 @@ public final class GeneralData extends ConfigurationProperties {
 	private static final boolean DEFAULT_INTERNALPHARMACIES = false;
 	private static final boolean DEFAULT_MERGEFUNCTION = false;
 	private static final boolean DEFAULT_SMSENABLED = false;
+	private static final boolean DEFAULT_TELEMETRYENABLED = false;
 	private static final boolean DEFAULT_MAINMENUALWAYSONTOP = false;
 	private static final boolean DEFAULT_RECEIPTPRINTER = false;
 	private static final boolean DEFAULT_VIDEOMODULEENABLED = false;
@@ -141,26 +138,30 @@ public final class GeneralData extends ConfigurationProperties {
 	private static final String DEFAULT_PATIENTBILLGROUPED = "PatientBillGrouped";
 	private static final String DEFAULT_PATIENTBILLSTATEMENT = "PatientBillStatement";
 	private static final boolean DEFAULT_DEBUG = false;
-	private static final int DEFAULT_STRONGLENGTH = 10;
+	private static final int DEFAULT_STRONGLENGTH = 6;
 	private static final int DEFAULT_SESSIONTIMEOUT = 5;
 	private static final boolean DEFAULT_STRONGPASSWORD = true;
 	private static final int DEFAULT_PASSWORDTRIES = 5;
 	private static final int DEFAULT_PASSWORDLOCKTIME = 60; // minutes
+	private static final int DEFAULT_PASSWORDIDLE = 365; // days
 	private static final String DEFAULT_PATIENTPHOTOSTORAGE = "DB";
 	public static final int IMAGE_THUMBNAIL_MAX_WIDTH = 140;
 	public static final int MAX_PROFILE_IMAGE_FILE_SIZE_BYTES = 32768;
-	
+	public static final String DEFAULT_PARAMSURL = "";
+
 	private static GeneralData mySingleData;
-	
+
 	public static void reset() {
-		mySingleData  = null;
+		mySingleData = null;
 	}
-	
-	
+
 	private GeneralData(String fileProperties) {
 		super(fileProperties, EXIT_ON_FAIL);
 		SINGLEUSER = myGetProperty("SINGLEUSER", DEFAULT_SINGLEUSER);
 		USERSLISTLOGIN = myGetProperty("USERSLISTLOGIN", DEFAULT_USERSLISTLOGIN);
+		MODE = myGetProperty("MODE", DEFAULT_MODE);
+		DEMODATA = myGetProperty("DEMODATA", DEFAULT_DEMODATA);
+		APISERVER = myGetProperty("APISERVER", DEFAULT_APISERVER);
 		LANGUAGE = myGetProperty("LANGUAGE", DEFAULT_LANGUAGE);
 		AUTOMATICLOT_IN = myGetProperty("AUTOMATICLOT_IN", DEFAULT_AUTOMATICLOT_IN);
 		AUTOMATICLOT_OUT = myGetProperty("AUTOMATICLOT_OUT", DEFAULT_AUTOMATICLOT_OUT);
@@ -193,6 +194,7 @@ public final class GeneralData extends ConfigurationProperties {
 		DOC_DIR = myGetProperty("DOC_DIR", DEFAULT_DOC_DIR);
 		MERGEFUNCTION = myGetProperty("MERGEFUNCTION", DEFAULT_MERGEFUNCTION);
 		SMSENABLED = myGetProperty("SMSENABLED", DEFAULT_SMSENABLED);
+		TELEMETRYENABLED = myGetProperty("TELEMETRYENABLED", DEFAULT_TELEMETRYENABLED);
 		MAINMENUALWAYSONTOP = myGetProperty("MAINMENUALWAYSONTOP", DEFAULT_MAINMENUALWAYSONTOP);
 		RECEIPTPRINTER = myGetProperty("RECEIPTPRINTER", DEFAULT_RECEIPTPRINTER);
 		VIDEOMODULEENABLED = myGetProperty("VIDEOMODULEENABLED", DEFAULT_VIDEOMODULEENABLED);
@@ -206,6 +208,7 @@ public final class GeneralData extends ConfigurationProperties {
 		PATIENTBILLGROUPED = myGetProperty("PATIENTBILLGROUPED", DEFAULT_PATIENTBILLGROUPED);
 		PATIENTBILLSTATEMENT = myGetProperty("PATIENTBILLSTATEMENT", DEFAULT_PATIENTBILLSTATEMENT);
 		DEBUG = myGetProperty("DEBUG", DEFAULT_DEBUG);
+
 		STRONGPASSWORD = myGetProperty("STRONGPASSWORD", DEFAULT_STRONGPASSWORD);
 		STRONGLENGTH = myGetProperty("STRONGLENGTH", DEFAULT_STRONGLENGTH);
 		// set same reasonable minimum and ensure it isn't negative; zero is used to skip length test
@@ -222,9 +225,17 @@ public final class GeneralData extends ConfigurationProperties {
 		if (PASSWORDTRIES != 0 && PASSWORDLOCKTIME < DEFAULT_PASSWORDLOCKTIME) {
 			PASSWORDLOCKTIME = DEFAULT_PASSWORDLOCKTIME;
 		}
+		PASSWORDIDLE = myGetProperty("PASSWORDIDLE", DEFAULT_PASSWORDIDLE);
+		// Zero indicates no idle check
+		if (PASSWORDIDLE < 0) {
+			PASSWORDIDLE = 0;
+		}
 		PATIENTPHOTOSTORAGE = myGetProperty("PATIENTPHOTOSTORAGE", DEFAULT_PATIENTPHOTOSTORAGE);
 		SESSIONTIMEOUT = myGetProperty("SESSIONTIMEOUT", DEFAULT_SESSIONTIMEOUT);
-}
+		PARAMSURL = myGetProperty("PARAMSURL", DEFAULT_PARAMSURL);
+
+		ParamsData.getInstance();
+	}
 
 	public static GeneralData getGeneralData() {
 		if (mySingleData == null) {
@@ -233,11 +244,9 @@ public final class GeneralData extends ConfigurationProperties {
 		return mySingleData;
 	}
 
-	
 	public static void initialize() {
 		mySingleData = new GeneralData(FILE_PROPERTIES);
 	}
-
 
 	/**
 	 * @return the SINGLEUSER
@@ -245,8 +254,7 @@ public final class GeneralData extends ConfigurationProperties {
 	public boolean getSINGLEUSER() {
 		return SINGLEUSER;
 	}
-	
-	
+
 	/**
 	 * @return the USERSLISTLOGIN
 	 */

@@ -28,23 +28,24 @@ import java.sql.Blob;
 import java.time.LocalDateTime;
 
 import javax.imageio.ImageIO;
-import javax.persistence.AttributeOverride;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
 import javax.sql.rowset.serial.SerialBlob;
-import javax.validation.constraints.NotNull;
+
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.dicomtype.model.DicomType;
 import org.isf.utils.db.Auditable;
@@ -53,20 +54,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Dicom - model for the DICOM entity; contains detailed DICOM Data
- * -----------------------------------------
- * modification history
- * ? -  Pietro Castellucci - first version
- * 29/08/2016 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_DICOM")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "DM_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "DM_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "DM_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "DM_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "DM_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "DM_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "DM_LAST_MODIFIED_DATE"))
@@ -75,7 +67,7 @@ public class FileDicom extends Auditable<String> {
 	private static final Logger LOGGER = LoggerFactory.getLogger(FileDicom.class);
 
 	@Id 
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name = "DM_FILE_ID")
 	private long idFile;
 
@@ -93,68 +85,68 @@ public class FileDicom extends Auditable<String> {
 
 	@NotNull
 	@Column(name = "DM_FILE_NOME")
-	private String fileName = "";
+	private String fileName;
 	
 	@Column(name = "DM_FILE_ACCESSION_NUMBER")
-	private String dicomAccessionNumber = "";
+	private String dicomAccessionNumber;
 
 	@Column(name = "DM_FILE_INSTITUTION_NAME")
-	private String dicomInstitutionName = "";
+	private String dicomInstitutionName;
 
 	@Column(name = "DM_FILE_PAT_UID")
-	private String dicomPatientID = "";
+	private String dicomPatientID;
 
 	@Column(name = "DM_FILE_PAT_NAME")
-	private String dicomPatientName = "";
+	private String dicomPatientName;
 
 	@Column(name = "DM_FILE_PAT_ADDR")
-	private String dicomPatientAddress = "";
+	private String dicomPatientAddress;
 
 	@Column(name = "DM_FILE_PAT_AGE")
-	private String dicomPatientAge = "";
+	private String dicomPatientAge;
 
 	@Column(name = "DM_FILE_PAT_SEX")
-	private String dicomPatientSex = "";
+	private String dicomPatientSex;
 	
 	@Column(name = "DM_FILE_PAT_BIRTHDATE")
-	private String dicomPatientBirthDate = "";
+	private String dicomPatientBirthDate;
 
 	@NotNull
 	@Column(name = "DM_FILE_ST_UID")
-	private String dicomStudyId = "";
+	private String dicomStudyId;
 
 	@Column(name = "DM_FILE_ST_DATE")	// SQL type: datetime
 	private LocalDateTime dicomStudyDate;
 
 	@Column(name = "DM_FILE_ST_DESCR")
-	private String dicomStudyDescription = "";
+	private String dicomStudyDescription;
 
 	@NotNull
 	@Column(name = "DM_FILE_SER_UID")
-	private String dicomSeriesUID = "";
+	private String dicomSeriesUID;
 
 	@NotNull
 	@Column(name = "DM_FILE_SER_INST_UID")
-	private String dicomSeriesInstanceUID = "";
+	private String dicomSeriesInstanceUID;
 
 	@Column(name = "DM_FILE_SER_NUMBER")
-	private String dicomSeriesNumber = "";
+	private String dicomSeriesNumber;
 
 	@Column(name = "DM_FILE_SER_DESC_COD_SEQ")
-	private String dicomSeriesDescriptionCodeSequence = "";
+	private String dicomSeriesDescriptionCodeSequence;
 
 	@Column(name = "DM_FILE_SER_DATE")	// SQL type: datetime
 	private LocalDateTime dicomSeriesDate;
 
 	@Column(name = "DM_FILE_SER_DESC")
-	private String dicomSeriesDescription = "";
+	private String dicomSeriesDescription;
 
 	@NotNull
 	@Column(name = "DM_FILE_INST_UID")
-	private String dicomInstanceUID = "";
+	private String dicomInstanceUID;
 
 	@Column(name = "DM_FILE_MODALIITY")
-	private String modality = "";
+	private String modality;
 
 	@Column(name = "DM_THUMBNAIL")
 	@Lob
@@ -722,11 +714,10 @@ public class FileDicom extends Auditable<String> {
 			return true;
 		}
 		
-		if (!(obj instanceof FileDicom)) {
+		if (!(obj instanceof FileDicom dicom)) {
 			return false;
 		}
-		
-		FileDicom dicom = (FileDicom)obj;
+
 		return (idFile == dicom.getIdFile());
 	}
 	

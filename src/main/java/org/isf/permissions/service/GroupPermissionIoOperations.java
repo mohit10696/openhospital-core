@@ -22,14 +22,11 @@
 package org.isf.permissions.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.isf.menu.model.UserGroup;
 import org.isf.permissions.model.GroupPermission;
-import org.isf.permissions.model.Permission;
 import org.isf.utils.db.TranslateOHServiceException;
 import org.isf.utils.exception.OHServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,25 +35,53 @@ import org.springframework.transaction.annotation.Transactional;
 @TranslateOHServiceException
 public class GroupPermissionIoOperations {
 
-	@Autowired
-	private GroupPermissionIoOperationRepository repository;
+	private final GroupPermissionIoOperationRepository repository;
 
-	public List<GroupPermission> findByIdIn(List<Integer> ids) {
-		return this.repository.findByIdIn(ids);
+	public GroupPermissionIoOperations(GroupPermissionIoOperationRepository groupPermissionIoOperationRepository) {
+		this.repository = groupPermissionIoOperationRepository;
 	}
 
-	public List<GroupPermission> generateGroupPermissionList(Permission model, List<UserGroup> userGroups) {
-		return userGroups.stream().map(ug -> {
-			GroupPermission gp = new GroupPermission();
-			gp.setPermission(model);
-			gp.setUserGroup(ug);
-			gp.setActive(1);
-			return gp;
-		}).collect(Collectors.toList());
+	public List<GroupPermission> findByIdIn(List<Integer> ids) throws OHServiceException {
+		return repository.findByIdIn(ids);
 	}
 
-	public List<GroupPermission> findByPermissionIdAndUserGroupCodes(Integer permissionId, List<String> userGroupCodes) {
-		return this.repository.findByPermission_IdAndUserGroup_CodeIn(permissionId, userGroupCodes);
+	public void deleteUserGroupPermissions(UserGroup userGroup) {
+		repository.deleteAllByUserGroup_Code(userGroup.getCode());
 	}
 
+	public List<GroupPermission> findUserGroupPermissions(String groupCode) {
+		return repository.findAllByUserGroup_Code(groupCode);
+	}
+
+	public List<GroupPermission> saveAll(List<GroupPermission> groupPermissions) {
+		return repository.saveAll(groupPermissions);
+	}
+
+	public GroupPermission create(GroupPermission groupPermission) {
+		return repository.save(groupPermission);
+	}
+
+	public List<GroupPermission> createAll(List<GroupPermission> groupPermissions) {
+		return repository.saveAll(groupPermissions);
+	}
+
+	public void delete(GroupPermission groupPermission) {
+		repository.delete(groupPermission);
+	}
+
+	public void deleteAll(List<GroupPermission> groupPermissions) {
+		repository.deleteAll(groupPermissions);
+	}
+
+	public boolean existsByUserGroupCodeAndPermissionId(String groupCode, int permissionId) {
+		return repository.existsByUserGroupCodeAndPermissionId(groupCode, permissionId);
+	}
+
+	public GroupPermission findByUserGroupCodeAndPermissionId(String groupCode, int permissionId) {
+		return repository.findFirstByUserGroupCodeAndPermissionId(groupCode, permissionId);
+	}
+
+	public GroupPermission findById(int id) {
+		return repository.findById(id).orElse(null);
+	}
 }

@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -150,7 +150,7 @@ public class PrintReceipt {
 					int i = 0;
 					while (!aLine.equals("")) {
 						zpl.append("^FO0,").append(i * charH);         //line position
-						zpl.append(font).append(",").append(charH);    //font size
+						zpl.append(font).append(',').append(charH);    //font size
 						zpl.append("^FD").append(aLine).append("^FS"); //line field
 						aLine = brStream.readLine();
 						i++;

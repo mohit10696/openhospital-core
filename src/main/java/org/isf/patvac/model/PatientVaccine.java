@@ -23,18 +23,18 @@ package org.isf.patvac.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.patient.model.Patient;
 import org.isf.utils.db.Auditable;
@@ -42,27 +42,18 @@ import org.isf.utils.time.TimeTools;
 import org.isf.vaccine.model.Vaccine;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * PatientVaccine - class
- * -----------------------------------------
- * modification history
- * 25/08/2011 - claudia - first beta version
- * 04/06/2015 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_PATIENTVACCINE")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "PAV_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "PAV_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "PAV_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "PAV_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "PAV_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "PAV_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "PAV_LAST_MODIFIED_DATE"))
 public class PatientVaccine extends Auditable<String> {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="PAV_ID")
 	private int code;
 
@@ -184,10 +175,9 @@ public class PatientVaccine extends Auditable<String> {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof PatientVaccine)) {
+		if (!(obj instanceof PatientVaccine other)) {
 			return false;
 		}
-		PatientVaccine other = (PatientVaccine) obj;
 		if (code != other.code) {
 			return false;
 		}

@@ -23,18 +23,18 @@ package org.isf.operation.model;
 
 import java.time.LocalDateTime;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.accounting.model.Bill;
 import org.isf.admission.model.Admission;
@@ -49,15 +49,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @Entity
 @Table(name="OH_OPERATIONROW")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "OPER_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "OPER_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "OPER_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "OPER_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "OPER_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "OPER_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "OPER_LAST_MODIFIED_DATE"))
 public class OperationRow extends Auditable<String> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "OPER_ID_A")
     private int id;
 
@@ -95,7 +95,7 @@ public class OperationRow extends Auditable<String> {
     private Bill bill;
 
     @Column(name = "OPER_TRANS_UNIT", columnDefinition = "float default 0")
-    private Float transUnit = 0f;
+    private Float transUnit = 0.0f;
     
     @Transient
     private volatile int hashCode;
@@ -226,12 +226,11 @@ public class OperationRow extends Auditable<String> {
             return true;
         }
 
-        if (!(anObject instanceof OperationRow)) {
+        if (!(anObject instanceof OperationRow operationRow)) {
             return false;
         }
 
-        OperationRow operationRow = (OperationRow) anObject;
-        return (this.getOperation().equals(operationRow.getOperation())
+		return (this.getOperation().equals(operationRow.getOperation())
                 && this.getPrescriber().equals(operationRow.getPrescriber()))
                 && operationRow.getTransUnit().equals(this.getTransUnit())
                 && this.getAdmission().equals(operationRow.getAdmission())
@@ -258,6 +257,6 @@ public class OperationRow extends Auditable<String> {
 
     @Override
     public String toString() {
-        return this.operation.getDescription() + " " + this.admission.getUserID();
+        return this.operation.getDescription() + ' ' + this.admission.getUserID();
     }
 }

@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -23,29 +23,19 @@ package org.isf.medicalstockward.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.validation.constraints.NotNull;
 
 import org.isf.medicals.model.Medical;
 import org.isf.medicalstock.model.Lot;
 import org.isf.ward.model.Ward;
 
-/**
- * ------------------------------------------
- * Medical Ward - model for the medical ward ID entity
- * -----------------------------------------
- * modification history
- * ? - ?
- * 17/01/2015 - Antonio - ported to JPA
- * 29/01/2020 - Mwithi - redefined embeddable entity
- * ------------------------------------------
- */
 @SuppressWarnings("serial")
 @Embeddable
-public class MedicalWardId implements Serializable 
-{	
+public class MedicalWardId implements Serializable {
+
 	@NotNull
 	@ManyToOne
 	@JoinColumn(name="MDSRWRD_WRD_ID_A")
@@ -109,10 +99,9 @@ public class MedicalWardId implements Serializable
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof MedicalWardId)) {
+		if (!(obj instanceof MedicalWardId other)) {
 			return false;
 		}
-		MedicalWardId other = (MedicalWardId) obj;
 		if (medical != other.medical) {
 			return false;
 		}

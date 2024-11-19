@@ -1,6 +1,6 @@
 /*
  * Open Hospital (www.open-hospital.org)
- * Copyright © 2006-2021 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
+ * Copyright © 2006-2023 Informatici Senza Frontiere (info@informaticisenzafrontiere.org)
  *
  * Open Hospital is a free and open source software for healthcare data management.
  *
@@ -21,13 +21,13 @@
  */
 package org.isf.medicalstockward.model;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.EntityListeners;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import org.isf.medicals.model.Medical;
 import org.isf.medicalstock.model.Lot;
@@ -35,20 +35,11 @@ import org.isf.utils.db.Auditable;
 import org.isf.ward.model.Ward;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-/**
- * ------------------------------------------
- * Medical Ward - model for the medical ward entity
- * -----------------------------------------
- * modification history
- * ? - ?
- * 17/01/2015 - Antonio - ported to JPA
- * ------------------------------------------
- */
 @Entity
 @Table(name="OH_MEDICALDSRWARD")
 @EntityListeners(AuditingEntityListener.class)
-@AttributeOverride(name = "createdBy", column = @Column(name = "MDSRWRD_CREATED_BY"))
-@AttributeOverride(name = "createdDate", column = @Column(name = "MDSRWRD_CREATED_DATE"))
+@AttributeOverride(name = "createdBy", column = @Column(name = "MDSRWRD_CREATED_BY", updatable = false))
+@AttributeOverride(name = "createdDate", column = @Column(name = "MDSRWRD_CREATED_DATE", updatable = false))
 @AttributeOverride(name = "lastModifiedBy", column = @Column(name = "MDSRWRD_LAST_MODIFIED_BY"))
 @AttributeOverride(name = "active", column = @Column(name = "MDSRWRD_ACTIVE"))
 @AttributeOverride(name = "lastModifiedDate", column = @Column(name = "MDSRWRD_LAST_MODIFIED_DATE"))
@@ -170,11 +161,10 @@ public class MedicalWard extends Auditable<String> implements Comparable<Object>
 			return true;
 		}
 		
-		if (!(obj instanceof MedicalWard)) {
+		if (!(obj instanceof MedicalWard ward)) {
 			return false;
 		}
-		
-		MedicalWard ward = (MedicalWard)obj;
+
 		return (this.id.getMedical() == ward.id.getMedical());
 	}
 	
