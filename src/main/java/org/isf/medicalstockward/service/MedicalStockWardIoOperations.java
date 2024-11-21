@@ -238,8 +238,8 @@ public class MedicalStockWardIoOperations {
 	 * @return the retrieved medicals.
 	 * @throws OHServiceException if an error occurs during the medical retrieving.
 	 */
-	public List<MedicalWard> getMedicalsWard(char wardId, boolean stripeEmpty) throws OHServiceException {
-		return getMedicalsWard(String.valueOf(wardId), 0, stripeEmpty);
+	public List<MedicalWard> getMedicalsWard(String wardId, boolean stripeEmpty) throws OHServiceException {
+		return getMedicalsWard(wardId, 0, stripeEmpty);
 	}
 
 	/**
@@ -287,7 +287,7 @@ public class MedicalStockWardIoOperations {
 	 * @return the retrieved medicals.
 	 * @throws OHServiceException
 	 */
-	public List<MedicalWard> getMedicalsWardTotalQuantity(char wardId) throws OHServiceException {
+	public List<MedicalWard> getMedicalsWardTotalQuantity(String wardId) throws OHServiceException {
 		String wardID = String.valueOf(wardId);
 		List<MedicalWard> medicalWards = getMedicalsWard(wardId, true);
 

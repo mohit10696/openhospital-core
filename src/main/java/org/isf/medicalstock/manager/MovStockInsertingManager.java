@@ -138,7 +138,12 @@ public class MovStockInsertingManager {
 		 */
 		Lot lot = movement.getLot();
 		if (lot != null) {
-
+			// get the lot information
+			String lotCode = lot.getCode();
+			Lot lotExist = ioOperations.getLot(lotCode);
+			if (lotExist != null) {
+				lot = lotExist;
+			}
 			if (isCharge && !isAutomaticLotIn() || !isCharge && !isAutomaticLotOut()) {
 				// check everything
 				validateLot(errors, lot, true);
@@ -186,7 +191,7 @@ public class MovStockInsertingManager {
 			if (!isAutomaticLotOut()) {
 
 				if (movement.getType() != null && !isCharge && movement.getQuantity() > lot.getMainStoreQuantity()) {
-					errors.add(new OHExceptionMessage(MessageBundle.getMessage("angal.medicalstock.movementquantityisgreaterthanthequantityof.msg")));
+					errors.add(new OHExceptionMessage(MessageBundle.formatMessage("angal.medicalstock.movementquantityisgreaterthanthequantityof.fmt.msg", movement.getQuantity(), lot.getMainStoreQuantity())));
 				}
 			}
 
@@ -209,7 +214,7 @@ public class MovStockInsertingManager {
 		if (lot.getDueDate() == null) {
 			errors.add(new OHExceptionMessage(MessageBundle.getMessage("angal.medicalstock.insertavalidduedate.msg")));
 		}
-		if (lot.getPreparationDate() != null && lot.getDueDate() != null && lot.getPreparationDate().compareTo(lot.getDueDate()) > 0) {
+		if (lot.getPreparationDate() != null && lot.getDueDate() != null && lot.getPreparationDate().isAfter(lot.getDueDate())) {
 			errors.add(new OHExceptionMessage(MessageBundle.getMessage("angal.medicalstock.thepreparationdatecannotbyaftertheduedate.msg")));
 		}
 	}
@@ -265,7 +270,7 @@ public class MovStockInsertingManager {
 
 	/**
 	 * Retrieves all the {@link Lot} associated to the specified {@link Medical}, expiring first on top, zero quantities will be stripped out if
-	 * {@code removeEmtpy} is set to true.
+	 * {@code removeEmpty} is set to true.
 	 *
 	 * @param medical the medical.
 	 * @param removeEmpty
@@ -425,7 +430,7 @@ public class MovStockInsertingManager {
 		List<Movement> dischargingMovements = new ArrayList<>();
 		for (Movement mov : movements) {
 			try {
-				dischargingMovements.addAll(prepareDishargingMovement(mov, checkReference));
+				dischargingMovements.addAll(prepareDischargingMovement(mov, checkReference));
 			} catch (OHServiceException e) {
 				List<OHExceptionMessage> errors = e.getMessages();
 				errors.add(new OHExceptionMessage(mov.getMedical().getDescription()));
@@ -455,7 +460,7 @@ public class MovStockInsertingManager {
 	 * @param checkReference - if {@code true} every movement must have unique reference number
 	 * @throws OHServiceException
 	 */
-	private List<Movement> prepareDishargingMovement(Movement movement, boolean checkReference) throws OHServiceException {
+	private List<Movement> prepareDischargingMovement(Movement movement, boolean checkReference) throws OHServiceException {
 		validateMovement(movement, checkReference);
 		if (isAutomaticLotOut()) {
 			return ioOperations.newAutomaticDischargingMovement(movement);

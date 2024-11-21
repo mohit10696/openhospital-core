@@ -106,4 +106,5 @@ source step_a109_update_user_settings_table_constraints_and_add_usergroups_permi
 source step_a110_update_operations_table_change_ope_for_to_enum.sql;
 source step_a111_add_missing_lock_columns.sql;
 source step_a112_users_and_groups_soft_deletion.sql;
-source step_a113_medical_type_soft_deletion.sql;
+source step_a113_alter_table_medicalinventory.sql;
+source step_a114_medical_type_soft_deletion.sql;

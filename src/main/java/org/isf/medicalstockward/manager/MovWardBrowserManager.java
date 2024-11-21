@@ -85,7 +85,7 @@ public class MovWardBrowserManager {
 	 * @return the retrieved medicals.
 	 * @throws OHServiceException
 	 */
-	public List<MedicalWard> getMedicalsWard(char wardId, boolean stripeEmpty) throws OHServiceException {
+	public List<MedicalWard> getMedicalsWard(String wardId, boolean stripeEmpty) throws OHServiceException {
 		return ioOperations.getMedicalsWard(wardId, stripeEmpty);
 	}
 
@@ -111,7 +111,7 @@ public class MovWardBrowserManager {
 	 * @return the retrieved medicals.
 	 * @throws OHServiceException
 	 */
-	public List<MedicalWard> getMedicalsWardTotalQuantity(char wardId) throws OHServiceException {
+	public List<MedicalWard> getMedicalsWardTotalQuantity(String wardId) throws OHServiceException {
 		return ioOperations.getMedicalsWardTotalQuantity(wardId);
 	}
 
