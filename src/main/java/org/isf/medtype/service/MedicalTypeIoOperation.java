@@ -51,6 +51,11 @@ public class MedicalTypeIoOperation {
 	public List<MedicalType> getMedicalTypes() throws OHServiceException {
 		return repository.findAllByOrderByDescriptionAsc();
 	}
+	
+	
+	public List<MedicalType> getMedicalTypesNotDeleted() throws OHServiceException {
+		return repository.findByAllNotDeletedOrderByDescriptionAsc();
+	}
 
 	/**
 	 * Updates the specified {@link MedicalType}.

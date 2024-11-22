@@ -82,6 +82,16 @@ public class MedicalTypeBrowserManager {
 	public List<MedicalType> getMedicalType() throws OHServiceException {
 		return ioOperations.getMedicalTypes();
 	}
+	
+	/**
+	 * Retrieves all the non deleted {@link MedicalType}s.
+	 *
+	 * @return a list of all the {@link MedicalType}s.
+	 * @throws OHServiceException
+	 */
+	public List<MedicalType> getAllActiveMedicalType() throws OHServiceException {
+		return ioOperations.getMedicalTypesNotDeleted();
+	}
 
 	/**
 	 * Saves the specified {@link MedicalType}.
